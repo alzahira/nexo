@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart' as app_auth;
@@ -179,19 +180,23 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               ]),
                               const SizedBox(height: 16),
 
-                              // Botón Google
-                              OutlinedButton.icon(
-                                onPressed: auth.isLoading ? null : _loginGoogle,
-                                icon: const Icon(Icons.g_mobiledata, size: 28, color: Color(0xFF4285F4)),
-                                label: const Text('Continuar con Google',
-                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                  side: const BorderSide(color: AppTheme.borderColor),
+                              // Botón Google (solo donde existe el plugin)
+                              if (kIsWeb ||
+                                  defaultTargetPlatform == TargetPlatform.android ||
+                                  defaultTargetPlatform == TargetPlatform.iOS) ...[
+                                OutlinedButton.icon(
+                                  onPressed: auth.isLoading ? null : _loginGoogle,
+                                  icon: const Icon(Icons.g_mobiledata, size: 28, color: Color(0xFF4285F4)),
+                                  label: const Text('Continuar con Google',
+                                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    side: const BorderSide(color: AppTheme.borderColor),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 18),
+                                const SizedBox(height: 18),
+                              ],
 
                               TextButton(
                                 onPressed: () => setState(() => _modoRegistro = !_modoRegistro),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -173,10 +173,16 @@ class AuthProvider extends ChangeNotifier {
 
   // --- Cerrar Sesión ---
   Future<void> cerrarSesion() async {
-    try {
-      await _googleSignIn.signOut();
-    } catch (e) {
-      debugPrint('AuthProvider: no se pudo cerrar sesión de Google: $e');
+    // google_sign_in no existe en Windows/Linux/macOS: solo móvil y web.
+    final googleDisponible = kIsWeb ||
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    if (googleDisponible) {
+      try {
+        await _googleSignIn.signOut();
+      } catch (e) {
+        debugPrint('AuthProvider: no se pudo cerrar sesión de Google: $e');
+      }
     }
     try {
       await _auth?.signOut();
