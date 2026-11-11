@@ -142,13 +142,13 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 32, height: 32,
-              decoration: BoxDecoration(gradient: AppTheme.accentGradient, borderRadius: BorderRadius.circular(9)),
-              child: const Icon(Icons.home_rounded, color: Colors.white, size: 18),
+            Image.asset(
+              'assets/icons/logo.png',
+              height: 34,
+              filterQuality: FilterQuality.high,
             ),
-            const SizedBox(width: 10),
-            const Text('AppHome', style: TextStyle(fontWeight: FontWeight.w800, color: AppTheme.textPrimary, fontSize: 20)),
+            const SizedBox(width: 8),
+            const Text('Nexo', style: TextStyle(fontWeight: FontWeight.w800, color: AppTheme.textPrimary, fontSize: 21, letterSpacing: 0.2)),
           ],
         ),
         centerTitle: true,

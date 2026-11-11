@@ -133,6 +133,7 @@
       try {
         const provider = new GoogleAuthProvider();
         provider.addScope("https://www.googleapis.com/auth/calendar");
+        provider.addScope("https://www.googleapis.com/auth/tasks");
         // Si la app ya sabe qué cuenta usa, se preselecciona para no tener
         // que elegirla cada vez. Sin pista, se muestra el selector.
         provider.setCustomParameters(

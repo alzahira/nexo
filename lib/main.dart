@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app_home/providers/auth_provider.dart';
 import 'package:app_home/providers/calendar_sync_provider.dart';
+import 'package:app_home/providers/compra_sync_provider.dart';
 import 'package:app_home/providers/usuario_provider.dart';
 import 'package:app_home/ui/screens/main_screen.dart';
 import 'package:app_home/ui/screens/auth/login_screen.dart';
@@ -56,6 +57,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (context) => CalendarSyncProvider(context.read<AuthProvider>()),
         ),
+        ChangeNotifierProvider(
+          create: (context) => CompraSyncProvider(context.read<AuthProvider>()),
+        ),
         ChangeNotifierProxyProvider<AuthProvider, UsuarioProvider>(
           create: (_) => UsuarioProvider(),
           update: (_, auth, usuario) {
@@ -64,12 +68,12 @@ void main() async {
           },
         ),
       ],
-      child: const AppHome(),
+      child: const Nexo(),
     ),
   );
 }
 
-/// Aviso que se muestra si ya hay otra copia de AppHome abierta.
+/// Aviso que se muestra si ya hay otra copia de Nexo abierta.
 class OtraInstanciaApp extends StatelessWidget {
   const OtraInstanciaApp({super.key});
 
@@ -77,7 +81,7 @@ class OtraInstanciaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'AppHome',
+      title: 'Nexo',
       theme: AppTheme.light,
       home: Scaffold(
         backgroundColor: AppTheme.bgDark,
@@ -88,7 +92,7 @@ class OtraInstanciaApp extends StatelessWidget {
               const Icon(Icons.home_rounded, size: 56, color: AppTheme.accent),
               const SizedBox(height: 16),
               Text(
-                'AppHome ya está abierto',
+                'Nexo ya está abierto',
                 style: AppTheme.light.textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
@@ -109,14 +113,14 @@ class OtraInstanciaApp extends StatelessWidget {
   }
 }
 
-class AppHome extends StatelessWidget {
-  const AppHome({super.key});
+class Nexo extends StatelessWidget {
+  const Nexo({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'AppHome',
+      title: 'Nexo',
       theme: AppTheme.light,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -157,7 +161,7 @@ class AuthWrapper extends StatelessWidget {
               const SizedBox(height: 24),
               const CircularProgressIndicator(color: AppTheme.accent),
               const SizedBox(height: 16),
-              Text('Cargando AppHome...', style: AppTheme.light.textTheme.bodyMedium),
+              Text('Cargando Nexo...', style: AppTheme.light.textTheme.bodyMedium),
             ],
           ),
         ),

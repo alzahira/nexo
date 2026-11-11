@@ -86,7 +86,7 @@ class GoogleWindowsAuth {
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>AppHome</title>
+  <title>Nexo</title>
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, sans-serif;
            background: #f8f4ee; color: #2e3a34; display: flex;
@@ -102,7 +102,7 @@ class GoogleWindowsAuth {
 <body>
   <main>
     <h1>Acceso completado</h1>
-    <p>Ya puedes cerrar esta pestaña y volver a AppHome.</p>
+    <p>Ya puedes cerrar esta pestaña y volver a Nexo.</p>
   </main>
 </body>
 </html>

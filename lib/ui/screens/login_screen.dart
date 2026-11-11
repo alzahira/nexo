@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.home_work_rounded, size: 80, color: Colors.blue),
-            const Text("AppHome", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+            const Text("Nexo", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
             const SizedBox(height: 40),
             TextField(
               controller: _emailController,

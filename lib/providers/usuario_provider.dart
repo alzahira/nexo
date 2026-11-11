@@ -195,6 +195,32 @@ class UsuarioProvider extends ChangeNotifier {
     await _guardarGestion();
   }
 
+  /// Guarda la lista tal cual está (por ejemplo tras recibir los ids de
+  /// Google Tasks).
+  Future<void> guardarListaCompra() async {
+    await _guardarGestion();
+  }
+
+  /// Añade los productos que llegan de Google Tasks sin duplicar los que ya
+  /// están (se comparan por nombre, sin mayúsculas ni espacios sobrantes).
+  Future<void> fusionarListaCompra(List<ItemCompra> nuevos) async {
+    if (nuevos.isEmpty) return;
+    final existentes = _listaCompra
+        .map((i) => i.nombre.trim().toLowerCase())
+        .toSet();
+    var cambios = false;
+    for (final nuevo in nuevos) {
+      final clave = nuevo.nombre.trim().toLowerCase();
+      if (clave.isEmpty || existentes.contains(clave)) continue;
+      _listaCompra.add(nuevo);
+      existentes.add(clave);
+      cambios = true;
+    }
+    if (!cambios) return;
+    notifyListeners();
+    await _guardarGestion();
+  }
+
   // --- MÉTODOS SUSCRIPCIONES ---
   Future<void> addSuscripcion(Suscripcion s) async {
     _suscripciones.add(s);

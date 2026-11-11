@@ -76,8 +76,20 @@ flutter_launcher_icons:
   ios: true
   image_path: "assets/icons/app_icon.png"
   min_sdk_android: 21
+  # Icono adaptativo de Android 8+: fondo degradado + casa en la zona segura.
+  adaptive_icon_background: "assets/icons/app_icon_background.png"
+  adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"
+  adaptive_icon_monochrome: "assets/icons/app_icon_monochrome.png"
+  remove_alpha_ios: true
+  windows:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+    icon_size: 256
   web:
-    generate: false
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+    background_color: "#F8F4EE"
+    theme_color: "#6F9480"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

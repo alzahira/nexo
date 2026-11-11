@@ -25,7 +25,7 @@ class Dashboard extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('AppHome - ${persona.nombre}'), // Personalizamos el título
+        title: Text('Nexo - ${persona.nombre}'), // Personalizamos el título
         centerTitle: true,
       ),
       body: GridView.builder(

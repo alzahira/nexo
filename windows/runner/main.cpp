@@ -28,7 +28,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   Win32Window::Point origin(40, 30);
   // Ventana pensada para el diseño móvil de la app: 1100 px lógicos de ancho.
   Win32Window::Size size(1100, 700);
-  if (!window.Create(L"app_home", origin, size)) {
+  if (!window.Create(L"Nexo", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

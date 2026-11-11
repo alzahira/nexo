@@ -83,17 +83,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   child: Column(
                     children: [
                       // Logo
-                      Container(
-                        width: 90, height: 90,
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.accentGradient,
-                          borderRadius: BorderRadius.circular(26),
-                          boxShadow: AppTheme.glowShadow,
-                        ),
-                        child: const Icon(Icons.home_rounded, size: 48, color: Colors.white),
+                      Image.asset(
+                        'assets/icons/logo.png',
+                        width: 96,
+                        height: 96,
+                        filterQuality: FilterQuality.high,
                       ),
-                      const SizedBox(height: 20),
-                      const Text('AppHome',
+                      const SizedBox(height: 12),
+                      const Text('Nexo',
                         style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: AppTheme.textPrimary, letterSpacing: 0.5)),
                       const SizedBox(height: 6),
                       Text(

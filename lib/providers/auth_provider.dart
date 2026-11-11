@@ -12,6 +12,11 @@ class AuthProvider extends ChangeNotifier {
 
   static const String _calendarScope =
       'https://www.googleapis.com/auth/calendar';
+  static const String _tasksScope = 'https://www.googleapis.com/auth/tasks';
+
+  /// Permisos que se piden al conectar Google: calendario y tareas (la lista
+  /// de la compra se sincroniza con una lista de Google Tasks).
+  static const List<String> _googleScopes = [_calendarScope, _tasksScope];
 
   /// Cliente OAuth de tipo "web" del proyecto app-home-familia.
   /// Google Sign-In en Android lo necesita para emitir el idToken.
@@ -178,7 +183,7 @@ class AuthProvider extends ChangeNotifier {
       final GoogleSignInAccount googleUser;
       try {
         googleUser = await _googleSignIn
-            .authenticate(scopeHint: const [_calendarScope]);
+            .authenticate(scopeHint: _googleScopes);
       } on GoogleSignInException catch (e) {
         _isLoading = false;
         if (e.code != GoogleSignInExceptionCode.canceled) {
@@ -230,7 +235,7 @@ class AuthProvider extends ChangeNotifier {
   /// En web google_sign_in 7 no permite autenticar con un botón propio,
   /// así que se usa el popup nativo de Firebase.
   Future<bool> _loginConGoogleWeb() async {
-    final provider = GoogleAuthProvider()..addScope(_calendarScope);
+    final provider = GoogleAuthProvider()..addScope(_calendarScope)..addScope(_tasksScope);
     final UserCredential userCredential =
         await _auth!.signInWithProvider(provider);
     _googleAccessToken = userCredential.credential?.accessToken;
@@ -257,7 +262,7 @@ class AuthProvider extends ChangeNotifier {
           correoApp.isNotEmpty &&
           correoToken != correoApp) {
         _isLoading = false;
-        _errorMessage = 'Has elegido la cuenta $correoToken, pero AppHome está '
+        _errorMessage = 'Has elegido la cuenta $correoToken, pero Nexo está '
             'abierta con $correoApp. Usa la misma cuenta de Google.';
         notifyListeners();
         return false;
@@ -311,9 +316,9 @@ class AuthProvider extends ChangeNotifier {
     _calendarEmail = account.email.trim().toLowerCase();
     try {
       final autorizacion = await account.authorizationClient
-              .authorizationForScopes(const [_calendarScope]) ??
+              .authorizationForScopes(_googleScopes) ??
           await account.authorizationClient
-              .authorizeScopes(const [_calendarScope]);
+              .authorizeScopes(_googleScopes);
       final token = autorizacion.accessToken;
       if (token.isEmpty) {
         _calendarError =
