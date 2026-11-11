@@ -105,6 +105,16 @@ class _HomeScreenState extends State<HomeScreen> {
       final calendar = context.read<CalendarSyncProvider>();
       final prov = context.read<UsuarioProvider>();
       await calendar.sincronizar(eventosLocales: prov.todosLosEventos);
+      if (!mounted) return;
+      final detalle = auth.calendarError ?? calendar.error;
+      if (detalle != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(detalle),
+          backgroundColor: AppTheme.dangerRed,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 10),
+        ));
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(auth.errorMessage ?? 'No se pudo conectar con Google.'),
@@ -318,31 +328,61 @@ class _HomeScreenState extends State<HomeScreen> {
     CalendarSyncProvider calendar,
     AuthProvider auth,
   ) {
-    if (calendar.sinPermiso) {
+    if (calendar.error != null) {
+      final sinPermiso = calendar.sinPermiso;
+      final detalle = calendar.error!;
       return Container(
         margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
         decoration: BoxDecoration(
           color: const Color(0xFFFDF0EA),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppTheme.borderColor),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.cloud_off_rounded,
-                color: AppTheme.textSecondary, size: 18),
+            Icon(
+              sinPermiso ? Icons.cloud_off_rounded : Icons.error_outline_rounded,
+              color: sinPermiso ? AppTheme.textSecondary : AppTheme.dangerRed,
+              size: 18,
+            ),
             const SizedBox(width: 8),
-            const Expanded(
-              child: Text(
-                'Google Calendar no está conectado',
-                style: TextStyle(fontSize: 12.5, color: AppTheme.textSecondary),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    sinPermiso
+                        ? 'Google Calendar no está conectado'
+                        : 'No se pudo sincronizar el calendario',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: sinPermiso ? AppTheme.textSecondary : AppTheme.dangerRed,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    detalle,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      color: AppTheme.textSecondary,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
               ),
             ),
             TextButton(
-              onPressed: () => _conectarGoogle(auth),
-              child: const Text(
-                'Conectar',
-                style: TextStyle(fontWeight: FontWeight.w700),
+              onPressed: () => sinPermiso
+                  ? _conectarGoogle(auth)
+                  : _sincronizar(context.read<UsuarioProvider>(), auth),
+              child: Text(
+                sinPermiso ? 'Conectar' : 'Reintentar',
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
           ],
@@ -379,6 +419,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (calendar.lastSync != null) {
+      final subidos = calendar.ultimosEnviados;
+      final importados = calendar.ultimosImportados;
       return Padding(
         padding: const EdgeInsets.only(bottom: 14),
         child: Row(
@@ -386,12 +428,16 @@ class _HomeScreenState extends State<HomeScreen> {
             const Icon(Icons.cloud_done_rounded,
                 color: AppTheme.accent, size: 16),
             const SizedBox(width: 6),
-            Text(
-              'Google Calendar · actualizado a las '
-              '${DateFormat('HH:mm').format(calendar.lastSync!)}',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.textSecondary,
+            Expanded(
+              child: Text(
+                'Google Calendar · ${DateFormat('HH:mm').format(calendar.lastSync!)}'
+                ' · ↑ $subidos enviados · ↓ $importados recibidos',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                ),
               ),
             ),
           ],

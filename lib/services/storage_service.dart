@@ -28,6 +28,12 @@ class StorageService {
   /// Lanza [FotoException] con un mensaje claro si no se puede procesar.
   Future<String> subirFotoPerfil(File foto) async {
     final bytes = await foto.readAsBytes();
+    return subirFotoPerfilBytes(bytes);
+  }
+
+  /// Igual que [subirFotoPerfil] pero a partir de los bytes ya recortados por
+  /// la pantalla de encuadre ([RecortarFotoScreen]).
+  Future<String> subirFotoPerfilBytes(Uint8List bytes) async {
     if (bytes.isEmpty) {
       throw FotoException('La imagen está vacía.');
     }

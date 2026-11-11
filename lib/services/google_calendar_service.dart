@@ -70,6 +70,10 @@ class GoogleCalendarService {
       );
 
       final googleItems = existingEvents.items ?? <cal.Event>[];
+      debugPrint(
+        "GOOGLE_CALENDAR: ${eventosLocales.length} eventos locales, "
+        "${googleItems.length} eventos en Google.",
+      );
 
       // Claves de los eventos que ya están en Google. Se usan tanto las
       // extended properties (eventos creados por esta app) como título+fecha
@@ -170,11 +174,12 @@ class GoogleCalendarService {
         eliminados: eliminados,
       );
     } on cal.DetailedApiRequestError catch (e) {
+      debugPrint(
+        "GOOGLE_CALENDAR ERROR: ${e.status} ${e.message} "
+        "${e.errors.map((d) => d.reason).join(',')} ${e.jsonResponse}",
+      );
       if (e.status == 401 || e.status == 403) {
-        throw const CalendarAuthException(
-          'Google Calendar ha rechazado el acceso. Vuelve a entrar con Google '
-          'para renovar el permiso.',
-        );
+        throw CalendarAuthException(_mensajeDePermiso(e));
       }
       debugPrint("GOOGLE_CALENDAR ERROR: $e");
       rethrow;
@@ -184,6 +189,31 @@ class GoogleCalendarService {
     } finally {
       authenticatedClient.close();
     }
+  }
+
+  /// Traduce el error de la API a algo que se pueda leer en pantalla.
+  String _mensajeDePermiso(cal.DetailedApiRequestError e) {
+    final razones = e.errors.map((d) => d.reason ?? '').join(' ');
+    final mensaje = (e.message ?? '').trim();
+    final todo = '$razones $mensaje'.toLowerCase();
+    if (todo.contains('service_disabled') ||
+        todo.contains('has not been used in project') ||
+        todo.contains('is disabled')) {
+      return 'La API de Google Calendar no está activada en el proyecto de '
+          'Firebase. Actívala en console.cloud.google.com → APIs y servicios.';
+    }
+    if (todo.contains('insufficientpermissions') ||
+        todo.contains('access_token_scope_insufficient') ||
+        todo.contains('insufficient authentication scopes')) {
+      return 'La cuenta no ha dado permiso al calendario. Pulsa Conectar y '
+          'acepta la casilla de Google Calendar.';
+    }
+    if (e.status == 401) {
+      return 'La sesión de Google ha caducado. Pulsa Conectar para renovarla.';
+    }
+    return mensaje.isEmpty
+        ? 'Google Calendar ha rechazado el acceso (${e.status}).'
+        : 'Google Calendar ha rechazado el acceso: $mensaje';
   }
 
   cal.Event _crearEventoGoogle(AppEvent appEvent, String key) {
