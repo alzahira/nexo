@@ -1,41 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:googleapis/calendar/v3.dart' as cal;
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import '../models/common/app_event.dart';
 
-
 class GoogleCalendarService {
-  final GoogleSignIn _googleSignIn;
+  /// Devuelve el token de acceso de Google Calendar, o `null` si no hay
+  /// sesión de Google válida.
+  final Future<String?> Function() _tokenProvider;
 
-  GoogleCalendarService(this._googleSignIn);
+  GoogleCalendarService(this._tokenProvider);
 
   /// Sincroniza una lista de eventos con el calendario de Google.
   Future<void> syncEvents(List<AppEvent> events) async {
     debugPrint("GOOGLE_CALENDAR: Iniciando sincronización manual...");
-    
-    final GoogleSignInAccount? account = _googleSignIn.currentUser;
-    if (account == null) {
-      debugPrint("GOOGLE_CALENDAR ERROR: No hay usuario de Google activo en el plugin.");
-      throw Exception("Inicia sesión con Google para sincronizar.");
+
+    final String? token = await _tokenProvider();
+    if (token == null || token.isEmpty) {
+      debugPrint("GOOGLE_CALENDAR ERROR: No hay token de Google disponible.");
+      throw Exception(
+          "Inicia sesión con Google y concede acceso al calendario.");
     }
 
-    // Solicitar permisos explícitamente si es necesario
-    try {
-      final bool granted = await _googleSignIn.requestScopes(['https://www.googleapis.com/auth/calendar']);
-      if (!granted) {
-        throw Exception("Permisos de calendario denegados por el usuario.");
-      }
-    } catch (e) {
-      debugPrint("GOOGLE_CALENDAR: Aviso al solicitar scopes: $e");
-    }
-
-    // Obtenemos los headers de autenticación (Token de acceso)
-    final Map<String, String> authHeaders = await account.authHeaders;
-    final authenticatedClient = GoogleAuthClient(authHeaders);
-
+    final authenticatedClient = GoogleAuthClient(token);
     final calendar = cal.CalendarApi(authenticatedClient);
-    
+
     try {
       final now = DateTime.now();
       final minTime = now.subtract(const Duration(days: 30)).toUtc();
@@ -72,7 +60,7 @@ class GoogleCalendarService {
 
         if (!existingIdentifiers.contains(identifier)) {
           debugPrint("GOOGLE_CALENDAR: Añadiendo '${appEvent.titulo}'...");
-          
+
           final googleEvent = cal.Event()
             ..summary = appEvent.titulo
             ..description = appEvent.descripcion
@@ -96,19 +84,19 @@ class GoogleCalendarService {
   }
 }
 
-/// Cliente HTTP que inyecta los headers de Google Auth en cada petición
+/// Cliente HTTP que inyecta el token de Google en cada petición.
 class GoogleAuthClient extends http.BaseClient {
-  final Map<String, String> _headers;
+  final String _token;
   final http.Client _client = http.Client();
 
-  GoogleAuthClient(this._headers);
+  GoogleAuthClient(this._token);
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) {
-    request.headers.addAll(_headers);
+    request.headers['Authorization'] = 'Bearer $_token';
     return _client.send(request);
   }
-  
+
   @override
   void close() {
     _client.close();

@@ -5,12 +5,23 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthProvider extends ChangeNotifier {
   FirebaseAuth? _auth;
-  late final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email',
-      'https://www.googleapis.com/auth/calendar',
-    ],
-  );
+
+  static const String _calendarScope =
+      'https://www.googleapis.com/auth/calendar';
+
+  /// Cliente OAuth de tipo "web" del proyecto app-home-familia.
+  /// Google Sign-In en Android lo necesita para emitir el idToken.
+  static const String _googleServerClientId =
+      '1031214812224-1flu4j9p9us6iqfoso872t1dr9bs48ck.apps.googleusercontent.com';
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  bool _googleInicializado = false;
+
+  Future<void> _inicializarGoogle() async {
+    if (_googleInicializado) return;
+    await _googleSignIn.initialize(serverClientId: _googleServerClientId);
+    _googleInicializado = true;
+  }
 
   /// Mensaje único para cuando la app arranca sin configuración de Firebase.
   static const String mensajeSinFirebase =
@@ -29,7 +40,6 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _user != null || _guestUserId != null;
   String? get errorMessage => _errorMessage;
   String? get googleAccessToken => _googleAccessToken;
-  GoogleSignIn get googleSignIn => _googleSignIn;
 
   /// `false` cuando no hay configuración de Firebase disponible
   /// (falta google-services.json / firebase_options.dart).
@@ -134,27 +144,53 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
-      if (googleUser == null) {
+      if (kIsWeb) return await _loginConGoogleWeb();
+
+      if (!_googleSignIn.supportsAuthenticate()) {
         _isLoading = false;
+        _errorMessage =
+            'El acceso con Google no está disponible en esta plataforma.';
         notifyListeners();
-        return false; 
+        return false;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      await _inicializarGoogle();
 
-      _googleAccessToken = googleAuth.accessToken;
+      final GoogleSignInAccount googleUser;
+      try {
+        googleUser = await _googleSignIn
+            .authenticate(scopeHint: const [_calendarScope]);
+      } on GoogleSignInException catch (e) {
+        _isLoading = false;
+        if (e.code != GoogleSignInExceptionCode.canceled) {
+          _errorMessage = 'No se pudo completar el acceso con Google.';
+          debugPrint('AuthProvider: GoogleSignInException ${e.code}: $e');
+        }
+        notifyListeners();
+        return false;
+      }
+
+      final String? idToken = googleUser.authentication.idToken;
+      if (idToken == null) {
+        _isLoading = false;
+        _errorMessage =
+            'Google no devolvió un token válido. Revisa la configuración de Firebase.';
+        notifyListeners();
+        return false;
+      }
+
+      _googleAccessToken = await _tokenCalendarioDe(googleUser);
 
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        idToken: idToken,
+        accessToken: _googleAccessToken,
       );
 
-      final UserCredential userCredential = await _auth!.signInWithCredential(credential);
+      final UserCredential userCredential =
+          await _auth!.signInWithCredential(credential);
       _user = userCredential.user;
       _guestUserId = null;
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -166,17 +202,63 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       _errorMessage = 'Error al conectar con Google. Inténtalo de nuevo.';
+      debugPrint('AuthProvider: error en loginConGoogle: $e');
       notifyListeners();
       return false;
     }
   }
 
+  /// En web google_sign_in 7 no permite autenticar con un botón propio,
+  /// así que se usa el popup nativo de Firebase.
+  Future<bool> _loginConGoogleWeb() async {
+    final provider = GoogleAuthProvider()..addScope(_calendarScope);
+    final UserCredential userCredential =
+        await _auth!.signInWithProvider(provider);
+    _googleAccessToken = userCredential.credential?.accessToken;
+    _user = userCredential.user;
+    _guestUserId = null;
+    _isLoading = false;
+    notifyListeners();
+    return true;
+  }
+
+  /// Pide (sin interacción si ya se concedió) el token de Google Calendar.
+  Future<String?> _tokenCalendarioDe(GoogleSignInAccount account) async {
+    try {
+      final autorizacion = await account.authorizationClient
+              .authorizationForScopes(const [_calendarScope]) ??
+          await account.authorizationClient
+              .authorizeScopes(const [_calendarScope]);
+      return autorizacion.accessToken;
+    } catch (e) {
+      debugPrint('AuthProvider: sin permiso de Google Calendar: $e');
+      return null;
+    }
+  }
+
+  /// Token de Calendar para el servicio de sincronización.
+  Future<String?> obtenerTokenCalendario() async {
+    if (_googleAccessToken != null) return _googleAccessToken;
+    if (kIsWeb || !_googleSignIn.supportsAuthenticate()) return null;
+    try {
+      await _inicializarGoogle();
+      final account = await _googleSignIn.attemptLightweightAuthentication();
+      if (account == null) return null;
+      _googleAccessToken = await _tokenCalendarioDe(account);
+      return _googleAccessToken;
+    } catch (e) {
+      debugPrint('AuthProvider: no se pudo obtener el token de Calendar: $e');
+      return null;
+    }
+  }
+
   // --- Cerrar Sesión ---
   Future<void> cerrarSesion() async {
-    // google_sign_in no existe en Windows/Linux/macOS: solo móvil y web.
-    final googleDisponible = kIsWeb ||
-        defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS;
+    // google_sign_in solo se inicializa en móvil (en web se usa el popup de Firebase).
+    final googleDisponible = !kIsWeb &&
+        _googleInicializado &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
     if (googleDisponible) {
       try {
         await _googleSignIn.signOut();

@@ -64,7 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.sync_rounded, color: AppTheme.accentLight),
             tooltip: 'Sincronizar con Google Calendar',
             onPressed: () async {
-              final calendarService = GoogleCalendarService(authProv.googleSignIn);
+              final calendarService =
+                  GoogleCalendarService(authProv.obtenerTokenCalendario);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Sincronizando con Google Calendar...'),

@@ -48,10 +48,8 @@ dependencies:
   firebase_storage: ^14.0.1
 
   # --- Google Sign-In y Calendar ---
-  google_sign_in: ^6.3.0
-  googleapis: ^13.2.0
-  googleapis_auth: ^1.6.0
-  extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  google_sign_in: ^7.2.0
+  googleapis: ^18.0.0
 
   # --- Utilidades ---
   uuid: ^4.6.0           # Generación de IDs únicos locales
