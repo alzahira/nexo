@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AppHome · Acceso con Google</title>
+  <title>Nexo · Acceso con Google</title>
   <style>
     :root {
       --bg: #f8f4ee;
@@ -82,13 +82,13 @@
   <main class="card">
     <div class="logo">🏠</div>
     <h1>Acceso con Google</h1>
-    <p>Usa la misma cuenta de Google que en el móvil para entrar en tu familia de AppHome.</p>
+    <p>Usa la misma cuenta de Google que en el móvil para entrar en tu familia de Nexo.</p>
     <button id="google">
       <span class="g">G</span>
       Continuar con Google
     </button>
     <div id="status" class="status"></div>
-    <div class="small">Al terminar, esta pestaña se cerrará y volverás a AppHome.</div>
+    <div class="small">Al terminar, esta pestaña se cerrará y volverás a Nexo.</div>
   </main>
 
   <script type="module">
@@ -118,12 +118,27 @@
 
     if (!port || !state) {
       button.disabled = true;
-      status.textContent = "Abre esta página desde la app AppHome para poder acceder.";
+      status.textContent = "Abre esta página desde la app Nexo para poder acceder.";
       status.className = "status error";
     }
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+
+    // Niveles de permiso, de más a menos. Si Google rechaza un ámbito (por
+    // ejemplo porque todavía no está añadido en la pantalla de consentimiento
+    // de OAuth), se reintenta con el siguiente nivel: el acceso con Google
+    // nunca se queda bloqueado por un permiso opcional. La app avisa luego de
+    // qué falta (calendario o tareas).
+    const NIVELES = [
+      [
+        "https://www.googleapis.com/auth/calendar",
+        "https://www.googleapis.com/auth/tasks",
+      ],
+      ["https://www.googleapis.com/auth/calendar"],
+      [],
+    ];
+    let nivel = 0;
 
     button.addEventListener("click", async () => {
       button.disabled = true;
@@ -132,8 +147,7 @@
 
       try {
         const provider = new GoogleAuthProvider();
-        provider.addScope("https://www.googleapis.com/auth/calendar");
-        provider.addScope("https://www.googleapis.com/auth/tasks");
+        for (const scope of NIVELES[nivel]) provider.addScope(scope);
         // Si la app ya sabe qué cuenta usa, se preselecciona para no tener
         // que elegirla cada vez. Sin pista, se muestra el selector.
         provider.setCustomParameters(
@@ -157,7 +171,7 @@
         // canjea el token por su propia sesión de Firebase.
         try { await signOut(auth); } catch (_) {}
 
-        status.textContent = "Acceso correcto. Volviendo a AppHome...";
+        status.textContent = "Acceso correcto. Volviendo a Nexo...";
         const target = new URL(`http://127.0.0.1:${port}/`);
         target.searchParams.set("state", state);
         target.searchParams.set("idToken", idToken);
@@ -165,6 +179,7 @@
         window.location.replace(target.toString());
       } catch (error) {
         const code = error?.code ?? "";
+        const detalle = `${code} ${error?.message ?? ""}`.toLowerCase();
         let message = error?.message ?? "No se pudo completar el acceso.";
         if (code === "auth/popup-closed-by-user") {
           message = "Cerraste la ventana de Google antes de terminar.";
@@ -173,9 +188,30 @@
         } else if (code === "auth/operation-not-allowed") {
           message = "El acceso con Google no está habilitado en Firebase.";
         }
+
+        // Baja un nivel de permisos cuando Google rechaza alguno.
+        if (detalle.includes("scope") && nivel < NIVELES.length - 1) {
+          nivel++;
+          status.textContent =
+            NIVELES[nivel].length === 0
+              ? "Google no acepta todavía esos permisos; entrando solo con la cuenta..."
+              : "Google no acepta todavía el permiso de tareas; entrando con el calendario...";
+          button.disabled = false;
+          button.click();
+          return;
+        }
+
         status.textContent = message;
         status.className = "status error";
         button.disabled = false;
+
+        // Avisa a la app de escritorio para que no se quede esperando 2 minutos.
+        if (port && state) {
+          const target = new URL(`http://127.0.0.1:${port}/`);
+          target.searchParams.set("state", state);
+          target.searchParams.set("error", message);
+          window.location.replace(target.toString());
+        }
       }
     });
   </script>

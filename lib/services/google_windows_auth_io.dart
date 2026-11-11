@@ -35,6 +35,12 @@ class GoogleWindowsAuth {
 
       if (completer.isCompleted) return;
 
+      final error = params['error'];
+      if (error != null && error.isNotEmpty) {
+        completer.completeError(StateError(error));
+        return;
+      }
+
       final idToken = params['idToken'];
       if (idToken == null || idToken.isEmpty) {
         completer.completeError(

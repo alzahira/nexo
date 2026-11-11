@@ -286,8 +286,9 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('AuthProvider: error en Google Windows: $e');
       _isLoading = false;
-      _errorMessage =
-          'No se pudo completar el acceso con Google. Inténtalo de nuevo.';
+      _errorMessage = e is StateError
+          ? e.message
+          : 'No se pudo completar el acceso con Google. Inténtalo de nuevo.';
       notifyListeners();
       return false;
     }
