@@ -12,7 +12,7 @@ class CursoDetailScreen extends StatelessWidget {
   
   const CursoDetailScreen({super.key, required this.curso, required this.persona});
 
-  Widget _buildCard(BuildContext context, String titulo, IconData icono, Color color, VoidCallback onTap) {
+  Widget _buildCard(BuildContext context, String titulo, FaIconData icono, Color color, VoidCallback onTap) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),

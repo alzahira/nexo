@@ -112,7 +112,7 @@ class GestionScreen extends StatelessWidget {
     );
   }
 
-  Widget _miniFicha(IconData icon, String text) {
+  Widget _miniFicha(FaIconData icon, String text) {
     return Row(
       children: [
         FaIcon(icon, color: Colors.white70, size: 14),
@@ -122,7 +122,7 @@ class GestionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOptionCard(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildOptionCard(BuildContext context, String title, FaIconData icon, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(25),

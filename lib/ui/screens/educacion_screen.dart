@@ -43,7 +43,7 @@ class _EducacionScreenState extends State<EducacionScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(FontAwesomeIcons.school, size: 80, color: Colors.grey.shade400),
+                FaIcon(FontAwesomeIcons.school, size: 80, color: Colors.grey.shade400),
                 const SizedBox(height: 20),
                 Text(
                   '${widget.persona.nombre} no tiene un perfil académico configurado.',
@@ -130,7 +130,7 @@ class _EducacionScreenState extends State<EducacionScreen> {
     );
   }
 
-  Widget _filaResumen(IconData icono, String etiqueta, String valor, Color color) {
+  Widget _filaResumen(FaIconData icono, String etiqueta, String valor, Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -145,7 +145,7 @@ class _EducacionScreenState extends State<EducacionScreen> {
     );
   }
 
-  Widget _cardEducacion(BuildContext context, String titulo, IconData icono, Color color, VoidCallback onTap) {
+  Widget _cardEducacion(BuildContext context, String titulo, FaIconData icono, Color color, VoidCallback onTap) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

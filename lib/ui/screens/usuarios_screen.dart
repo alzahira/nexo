@@ -235,7 +235,7 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
   }
 
   Widget _botonCategoria({
-    required IconData icon,
+    required FaIconData icon,
     required Color color,
     required String label,
     required VoidCallback onTap,

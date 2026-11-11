@@ -16,7 +16,7 @@ class PropiedadDetailScreen extends StatefulWidget {
 
 class _PropiedadDetailScreenState extends State<PropiedadDetailScreen> {
 
-  Widget _buildBotonModulo(String titulo, IconData icono, Color color, VoidCallback onTap) {
+  Widget _buildBotonModulo(String titulo, FaIconData icono, Color color, VoidCallback onTap) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),

@@ -69,7 +69,7 @@ class _EditTallasScreenState extends State<EditTallasScreen> {
     );
   }
 
-  Widget _campoTalla(TextEditingController ctrl, String label, IconData icon, {bool isNumber = false}) {
+  Widget _campoTalla(TextEditingController ctrl, String label, FaIconData icon, {bool isNumber = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TextField(

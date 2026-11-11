@@ -53,7 +53,7 @@ class _SuministrosScreenState extends State<SuministrosScreen> {
     );
   }
 
-  IconData _getIconForTipo(String tipo) {
+  FaIconData _getIconForTipo(String tipo) {
     switch (tipo) {
       case 'Electricidad': return FontAwesomeIcons.bolt;
       case 'Agua': return FontAwesomeIcons.droplet;

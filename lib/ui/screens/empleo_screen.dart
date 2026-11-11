@@ -20,7 +20,7 @@ class _EmpleoScreenState extends State<EmpleoScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => EditDatosEmpleoScreen(persona: widget.persona))).then((_) => setState(() {}));
   }
 
-  Widget _buildCard(String titulo, IconData icono, Color color, VoidCallback onTap) {
+  Widget _buildCard(String titulo, FaIconData icono, Color color, VoidCallback onTap) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),

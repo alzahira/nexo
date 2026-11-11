@@ -127,7 +127,7 @@ class _SaludScreenState extends State<SaludScreen> {
     );
   }
 
-  Widget _filaResumen(IconData icono, String etiqueta, String valor, Color color) {
+  Widget _filaResumen(FaIconData icono, String etiqueta, String valor, Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -142,7 +142,7 @@ class _SaludScreenState extends State<SaludScreen> {
     );
   }
 
-  Widget _cardSalud(BuildContext context, String titulo, IconData icono, Color color, VoidCallback onTap) {
+  Widget _cardSalud(BuildContext context, String titulo, FaIconData icono, Color color, VoidCallback onTap) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import '../widgets/app_icon.dart';
 import 'dart:io';
 import '../../models/usuarios/persona.dart';
 import '../../providers/usuario_provider.dart';
@@ -238,13 +239,13 @@ class PersonaDetailScreen extends StatelessWidget {
   }
 
   Widget _infoTile(
-    IconData icon,
+    Object icon,
     String label,
     String value, {
     Color color = Colors.blue,
   }) {
     return ListTile(
-      leading: FaIcon(icon, color: color, size: 20),
+      leading: AppIcon(icon, color: color, size: 20),
       title: Text(
         label,
         style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -260,7 +261,7 @@ class PersonaDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _tallaWidget(IconData icon, String label, String valor) {
+  Widget _tallaWidget(FaIconData icon, String label, String valor) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
