@@ -1,0 +1,13 @@
+{
+  "name": "apphome-rules-test",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Pruebas de las reglas de Firestore de AppHome contra el emulador",
+  "scripts": {
+    "test": "firebase emulators:exec --only firestore --project demo-apphome \"node test.js\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^13.0.0"
+  }
+}
