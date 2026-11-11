@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../models/usuarios/documento_identidad.dart';
+import '../theme/app_theme.dart';
 
 class AddDocumentoScreen extends StatefulWidget {
   const AddDocumentoScreen({super.key});
@@ -43,7 +44,7 @@ class _AddDocumentoScreenState extends State<AddDocumentoScreen> {
               child: Container(
                 height: 150,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
+                  color: AppTheme.softSand,
                   borderRadius: BorderRadius.circular(15),
                   border: Border.all(color: Colors.blue.shade200),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/salud/tratamiento.dart'; // <--- IMPORTANTE: Tu clase Tratamiento
+import '../theme/app_theme.dart';
 
 class AddTratamientoScreen extends StatefulWidget {
   // CAMBIO: Ahora recibimos un objeto Tratamiento, no un Map
@@ -59,7 +60,7 @@ class _AddTratamientoScreenState extends State<AddTratamientoScreen> {
             
             const SizedBox(height: 10),
             ListTile(
-              tileColor: Colors.grey.shade100,
+              tileColor: AppTheme.softSand,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               title: const Text('Fecha Finalización'),
               subtitle: Text(DateFormat('dd/MM/yyyy').format(_fechaFin)),

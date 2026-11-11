@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/salud/cita_medica.dart'; // Importante para usar la clase
+import '../theme/app_theme.dart';
 
 class AddCitaScreen extends StatefulWidget {
   final CitaMedica? citaParaEditar; // <--- Cambiado de Map a CitaMedica
@@ -64,7 +65,7 @@ class _AddCitaScreenState extends State<AddCitaScreen> {
             
             const SizedBox(height: 10),
             ListTile(
-              tileColor: Colors.grey.shade100,
+              tileColor: AppTheme.softSand,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               leading: const Icon(Icons.event, color: Colors.blue),
               title: const Text('Fecha y Hora'),

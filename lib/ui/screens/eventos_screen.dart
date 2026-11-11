@@ -5,6 +5,7 @@ import '../../providers/usuario_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'add_evento_screen.dart';
+import '../theme/app_theme.dart';
 
 class EventosScreen extends StatefulWidget {
   final Persona persona;
@@ -39,7 +40,7 @@ class _EventosScreenState extends State<EventosScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Eventos Escolares'), backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
       body: eventos.isEmpty 
-          ? const Center(child: Text('No hay eventos programados', style: TextStyle(color: Colors.grey, fontSize: 16))) 
+          ? const Center(child: Text('No hay eventos programados', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16))) 
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: eventos.length,
@@ -58,7 +59,7 @@ class _EventosScreenState extends State<EventosScreen> {
                            const Text('⚠️ Requiere autorización firmada', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12))
                       ]
                     ),
-                    trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.grey), onPressed: () => _borrar(ev)),
+                    trailing: IconButton(icon: const Icon(Icons.delete, color: AppTheme.textSecondary), onPressed: () => _borrar(ev)),
                   ),
                 );
               }

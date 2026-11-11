@@ -1,9 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../models/usuarios/persona.dart';
-import '../../providers/usuario_provider.dart';
 import '../../services/storage_service.dart';
 
 class AddPersonaScreen extends StatefulWidget {
@@ -23,13 +22,34 @@ class _AddPersonaScreenState extends State<AddPersonaScreen> {
   final _telCtrl = TextEditingController();
   
   String _grupoSanguineo = 'A+';
-  final DateTime _fechaNac = DateTime.now();
+  DateTime _fechaNac = DateTime(
+    DateTime.now().year - 30,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
   File? _imageFile;
   bool _subiendo = false;
 
+  Future<void> _seleccionarFechaNacimiento() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _fechaNac,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() => _fechaNac = picked);
+    }
+  }
+
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1000,
+      maxHeight: 1000,
+      imageQuality: 70,
+    );
     if (pickedFile != null) {
       setState(() => _imageFile = File(pickedFile.path));
     }
@@ -41,6 +61,7 @@ class _AddPersonaScreenState extends State<AddPersonaScreen> {
       appBar: AppBar(title: const Text('Nuevo Miembro')),
       body: Form(
         key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
@@ -61,8 +82,46 @@ class _AddPersonaScreenState extends State<AddPersonaScreen> {
             _buildField(_nombreCtrl, 'Nombre', Icons.person),
             _buildField(_apellidosCtrl, 'Apellidos', Icons.person_outline),
             _buildField(_dniCtrl, 'DNI', Icons.badge),
-            _buildField(_dirCtrl, 'Dirección', Icons.home),
-            _buildField(_telCtrl, 'Teléfono', Icons.phone, keyboard: TextInputType.phone),
+
+            Padding(
+              padding: const EdgeInsets.only(bottom: 15),
+              child: InkWell(
+                onTap: _seleccionarFechaNacimiento,
+                borderRadius: BorderRadius.circular(4),
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Fecha de nacimiento',
+                    prefixIcon: Icon(Icons.cake_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          DateFormat('dd/MM/yyyy').format(_fechaNac),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ),
+                      const Icon(Icons.calendar_today_outlined, size: 18),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            _buildField(
+              _dirCtrl,
+              'Dirección',
+              Icons.home,
+              obligatorio: false,
+            ),
+            _buildField(
+              _telCtrl,
+              'Teléfono',
+              Icons.phone,
+              keyboard: TextInputType.phone,
+              obligatorio: false,
+            ),
 
             ListTile(
               leading: const Icon(Icons.bloodtype, color: Colors.red),
@@ -90,7 +149,13 @@ class _AddPersonaScreenState extends State<AddPersonaScreen> {
     );
   }
 
-  Widget _buildField(TextEditingController ctrl, String label, IconData icon, {TextInputType keyboard = TextInputType.text}) {
+  Widget _buildField(
+    TextEditingController ctrl,
+    String label,
+    IconData icon, {
+    TextInputType keyboard = TextInputType.text,
+    bool obligatorio = true,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: TextFormField(
@@ -101,7 +166,11 @@ class _AddPersonaScreenState extends State<AddPersonaScreen> {
           border: const OutlineInputBorder(),
         ),
         keyboardType: keyboard,
-        validator: (value) => value!.isEmpty ? 'Campo obligatorio' : null,
+        validator: obligatorio
+            ? (value) => (value == null || value.trim().isEmpty)
+                ? 'Campo obligatorio'
+                : null
+            : null,
       ),
     );
   }
@@ -113,21 +182,33 @@ class _AddPersonaScreenState extends State<AddPersonaScreen> {
 
     String? fotoUrl;
 
-    // Subir foto a Firebase Storage si se ha seleccionado una
+    // La foto se comprime y se guarda dentro de Firestore (sin Cloud Storage)
     if (_imageFile != null) {
-      final userId = context.read<UsuarioProvider>().userId ?? 'sin_usuario';
-      final storage = StorageService();
-      fotoUrl = await storage.subirFotoPerfil(userId, _dniCtrl.text.trim(), _imageFile!);
+      try {
+        fotoUrl = await StorageService().subirFotoPerfil(_imageFile!);
+      } on FotoException catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('La foto no se pudo procesar: ${e.mensaje}')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('La foto no se pudo procesar: $e')),
+          );
+        }
+      }
     }
 
     if (!mounted) return;
 
     final nuevaPersona = Persona(
-      nombre: _nombreCtrl.text,
-      apellidos: _apellidosCtrl.text,
-      dni: _dniCtrl.text,
-      direccion: _dirCtrl.text,
-      telefono: _telCtrl.text,
+      nombre: _nombreCtrl.text.trim(),
+      apellidos: _apellidosCtrl.text.trim(),
+      dni: _dniCtrl.text.trim().toUpperCase(),
+      direccion: _dirCtrl.text.trim(),
+      telefono: _telCtrl.text.trim(),
       grupoSanguineo: _grupoSanguineo,
       fechaNacimiento: _fechaNac,
       fotoUrl: fotoUrl, // URL de Firebase Storage (o null si no hay foto)

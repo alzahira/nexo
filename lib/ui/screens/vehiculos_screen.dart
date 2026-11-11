@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../models/vehiculos/vehiculo.dart';
 import 'add_vehiculo_screen.dart';
 import 'vehiculo_detail_screen.dart';
+import '../theme/app_theme.dart';
 
 class VehiculosScreen extends StatefulWidget {
   const VehiculosScreen({super.key});
@@ -63,7 +64,7 @@ class _VehiculosScreenState extends State<VehiculosScreen> {
                 ),
               ),
               isThreeLine: true,
-              trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+              trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
               onTap: () {
                 Navigator.push(
                   context,

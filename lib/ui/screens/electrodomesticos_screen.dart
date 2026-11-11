@@ -6,6 +6,7 @@ import '../../models/hogar/electrodomestico.dart';
 import '../../models/hogar/propiedad.dart';
 import '../../providers/usuario_provider.dart';
 import 'add_electrodomestico_screen.dart';
+import '../theme/app_theme.dart';
 
 class ElectrodomesticosScreen extends StatefulWidget {
   final Propiedad propiedad;
@@ -41,7 +42,7 @@ class _ElectrodomesticosScreenState extends State<ElectrodomesticosScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Electrodomésticos'), backgroundColor: Colors.orange, foregroundColor: Colors.white),
       body: enseres.isEmpty
-        ? const Center(child: Text('El inventario está vacío.', style: TextStyle(color: Colors.grey, fontSize: 16)))
+        ? const Center(child: Text('El inventario está vacío.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)))
         : ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: enseres.length,
@@ -64,7 +65,7 @@ class _ElectrodomesticosScreenState extends State<ElectrodomesticosScreen> {
                   subtitle: Text('${e.marca} (${e.precio.toStringAsFixed(2)} €)\nComp: ${DateFormat('dd/MM/yyyy').format(e.fechaCompra)} - Ubic: ${e.ubicacion ?? 'S/D'}'),
                   trailing: enGarantia 
                       ? const Chip(label: Text('Garantía', style: TextStyle(color: Colors.white, fontSize: 10)), backgroundColor: Colors.green, padding: EdgeInsets.zero)
-                      : const Chip(label: Text('Sin Garant.', style: TextStyle(color: Colors.white, fontSize: 10)), backgroundColor: Colors.grey, padding: EdgeInsets.zero),
+                      : const Chip(label: Text('Sin Garant.', style: TextStyle(color: Colors.white, fontSize: 10)), backgroundColor: AppTheme.textSecondary, padding: EdgeInsets.zero),
                   onLongPress: () => _borrar(e),
                 ),
               );

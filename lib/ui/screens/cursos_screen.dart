@@ -5,6 +5,7 @@ import '../../models/educacion/curso_academico.dart';
 import '../../providers/usuario_provider.dart';
 import 'add_curso_screen.dart';
 import 'curso_detail_screen.dart';
+import '../theme/app_theme.dart';
 
 class CursosScreen extends StatefulWidget {
   final Persona persona;
@@ -33,7 +34,7 @@ class _CursosScreenState extends State<CursosScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Historial Académico'), backgroundColor: Colors.orange, foregroundColor: Colors.white),
       body: cursos.isEmpty 
-        ? const Center(child: Text('Añade tu curso actual para comenzar (+)', style: TextStyle(color: Colors.grey, fontSize: 16)))
+        ? const Center(child: Text('Añade tu curso actual para comenzar (+)', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)))
         : ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: cursos.length,

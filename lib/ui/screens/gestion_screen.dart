@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../providers/usuario_provider.dart';
+import '../theme/app_theme.dart';
 import 'menu_semanal_screen.dart';
 import 'lista_compra_screen.dart';
 import 'suscripciones_screen.dart';
@@ -18,7 +19,7 @@ class GestionScreen extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.indigo,
+        foregroundColor: AppTheme.textPrimary,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -78,24 +79,25 @@ class GestionScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFF3F51B5), Color(0xFF1A237E)]),
+        gradient: AppTheme.mintGradient,
         borderRadius: BorderRadius.circular(25),
-        boxShadow: [BoxShadow(color: Colors.indigo.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 8))]
+        border: Border.all(color: AppTheme.borderColor),
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Resumen Mensual', style: TextStyle(color: Colors.white70, fontSize: 14)),
-              const Icon(Icons.analytics, color: Colors.white54),
+              const Text('Resumen Mensual', style: TextStyle(color: AppTheme.textSecondary, fontSize: 14, fontWeight: FontWeight.w700)),
+              const Icon(Icons.analytics_rounded, color: AppTheme.accent),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              const Text('€', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300)),
-              Text(totalMensual.toStringAsFixed(2), style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+              const Text('€', style: TextStyle(color: AppTheme.textPrimary, fontSize: 20, fontWeight: FontWeight.w400)),
+              Text(totalMensual.toStringAsFixed(2), style: const TextStyle(color: AppTheme.textPrimary, fontSize: 34, fontWeight: FontWeight.w800)),
             ],
           ),
           const SizedBox(height: 20),
@@ -103,7 +105,7 @@ class GestionScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _miniFicha(FontAwesomeIcons.basketShopping, '$pendientes items ptes'),
-              Container(width: 1, height: 20, color: Colors.white24),
+              Container(width: 1, height: 20, color: AppTheme.borderColor),
               _miniFicha(FontAwesomeIcons.calendarCheck, 'Menú OK'),
             ],
           )
@@ -115,9 +117,9 @@ class GestionScreen extends StatelessWidget {
   Widget _miniFicha(FaIconData icon, String text) {
     return Row(
       children: [
-        FaIcon(icon, color: Colors.white70, size: 14),
+        FaIcon(icon, color: AppTheme.accentGlow, size: 14),
         const SizedBox(width: 8),
-        Text(text, style: const TextStyle(color: Colors.white, fontSize: 12)),
+        Text(text, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -128,23 +130,23 @@ class GestionScreen extends StatelessWidget {
       borderRadius: BorderRadius.circular(25),
       child: Container(
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5)
+          border: Border.all(color: color.withValues(alpha: 0.18), width: 1.2)
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
-              backgroundColor: color,
+              backgroundColor: color.withValues(alpha: 0.16),
               radius: 28,
-              child: FaIcon(icon, color: Colors.white, size: 24),
+              child: FaIcon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 15),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(color: color.withValues(alpha: 0.8), fontWeight: FontWeight.bold, fontSize: 16),
+              style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w800, fontSize: 16),
             ),
           ],
         ),

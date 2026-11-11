@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../models/salud/vacuna.dart';
+import '../theme/app_theme.dart';
 
 class AddVacunaScreen extends StatefulWidget {
   final Vacuna? vacunaParaEditar;
@@ -48,7 +49,7 @@ class _AddVacunaScreenState extends State<AddVacunaScreen> {
             _buildInput(_labCtrl, 'Laboratorio / Lote', Icons.factory),
             
             ListTile(
-              tileColor: Colors.grey.shade100,
+              tileColor: AppTheme.softSand,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               title: const Text('Fecha de Administración'),
               subtitle: Text(DateFormat('dd/MM/yyyy').format(_fecha)),
@@ -105,7 +106,7 @@ class _AddVacunaScreenState extends State<AddVacunaScreen> {
       child: Container(
         height: 180,
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: AppTheme.softSand,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(color: Colors.purple.shade200)
         ),

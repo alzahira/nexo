@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/usuario_provider.dart';
 import '../../models/gestion/item_compra.dart';
 import 'add_item_compra_screen.dart';
+import '../theme/app_theme.dart';
 
 class ListaCompraScreen extends StatefulWidget {
   const ListaCompraScreen({super.key});
@@ -28,7 +29,7 @@ class _ListaCompraScreenState extends State<ListaCompraScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Lista de la Compra'), backgroundColor: Colors.green, foregroundColor: Colors.white),
       body: items.isEmpty
-        ? const Center(child: Text('Nada por comprar. ¡Todo listo!', style: TextStyle(color: Colors.grey)))
+        ? const Center(child: Text('Nada por comprar. ¡Todo listo!', style: TextStyle(color: AppTheme.textSecondary)))
         : ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -39,7 +40,7 @@ class _ListaCompraScreenState extends State<ListaCompraScreen> {
               ],
               if (comprados.isNotEmpty) ...[
                 const SizedBox(height: 25),
-                const Text('COMPRADOS', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                const Text('COMPRADOS', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textSecondary)),
                 const Divider(),
                 ...comprados.map((i) => _itemRow(i)),
               ],
@@ -61,7 +62,7 @@ class _ListaCompraScreenState extends State<ListaCompraScreen> {
           });
         },
       ),
-      title: Text(item.nombre, style: TextStyle(decoration: item.estaComprado ? TextDecoration.lineThrough : null, color: item.estaComprado ? Colors.grey : Colors.black)),
+      title: Text(item.nombre, style: TextStyle(decoration: item.estaComprado ? TextDecoration.lineThrough : null, color: item.estaComprado ? AppTheme.textSecondary : Colors.black)),
       subtitle: Text('${item.cantidad} ${item.unidad}'),
       trailing: IconButton(
         icon: const Icon(Icons.delete_outline, color: Colors.redAccent),

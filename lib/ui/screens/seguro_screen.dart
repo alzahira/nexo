@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../models/hogar/propiedad.dart';
 import '../../models/hogar/seguro_hogar.dart';
+import '../theme/app_theme.dart';
 import 'add_seguro_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -35,17 +36,15 @@ class _SeguroScreenState extends State<SeguroScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Seguro de Hogar'),
-        backgroundColor: Colors.redAccent,
-        foregroundColor: Colors.white,
       ),
       body: s == null
         ? Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const FaIcon(FontAwesomeIcons.shieldHeart, size: 80, color: Colors.grey),
+                const FaIcon(FontAwesomeIcons.shieldHeart, size: 80, color: AppTheme.accentLight),
                 const SizedBox(height: 20),
-                const Text('No hay seguro registrado en esta propiedad', style: TextStyle(color: Colors.grey)),
+                const Text('No hay seguro registrado en esta propiedad', style: TextStyle(color: AppTheme.textSecondary)),
                 const SizedBox(height: 20),
                 ElevatedButton(onPressed: _editSeguro, child: const Text('Registrar Seguro'))
               ],
@@ -57,22 +56,26 @@ class _SeguroScreenState extends State<SeguroScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Card(
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  elevation: 0,
+                  color: AppTheme.bgCard,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: AppTheme.borderColor),
+                  ),
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      gradient: const LinearGradient(colors: [Colors.red, Colors.redAccent])
+                      gradient: AppTheme.peachGradient,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Compañía', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                        Text(s.compania, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                        const Text('Compañía', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w700)),
+                        Text(s.compania, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 24, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 15),
-                        const Text('Número de Póliza', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                        Text(s.nPoliza, style: const TextStyle(color: Colors.white, fontSize: 18)),
+                        const Text('Número de Póliza', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w700)),
+                        Text(s.nPoliza, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -85,7 +88,6 @@ class _SeguroScreenState extends State<SeguroScreen> {
                 ElevatedButton.icon(
                   icon: const Icon(Icons.edit),
                   label: const Text('Editar Datos del Seguro'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 15)),
                   onPressed: _editSeguro,
                 )
               ],
@@ -104,7 +106,7 @@ class _SeguroScreenState extends State<SeguroScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(titulo, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              Text(titulo, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
               Text(valor, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ],
           )

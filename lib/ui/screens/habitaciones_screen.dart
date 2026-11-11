@@ -6,6 +6,7 @@ import '../../models/hogar/habitacion.dart';
 import '../../models/hogar/propiedad.dart';
 import '../../providers/usuario_provider.dart';
 import 'add_habitacion_screen.dart';
+import '../theme/app_theme.dart';
 
 class HabitacionesScreen extends StatefulWidget {
   final Propiedad propiedad;
@@ -39,7 +40,7 @@ class _HabitacionesScreenState extends State<HabitacionesScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Estancias'), backgroundColor: Colors.indigo, foregroundColor: Colors.white),
       body: habitaciones.isEmpty
-        ? const Center(child: Text('No has registrado ninguna habitación.', style: TextStyle(color: Colors.grey, fontSize: 16)))
+        ? const Center(child: Text('No has registrado ninguna habitación.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)))
         : ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: habitaciones.length,

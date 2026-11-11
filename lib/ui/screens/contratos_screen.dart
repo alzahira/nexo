@@ -6,6 +6,7 @@ import '../../models/usuarios/persona.dart';
 import '../../models/trabajo/contrato.dart';
 import '../../providers/usuario_provider.dart';
 import 'add_contrato_screen.dart';
+import '../theme/app_theme.dart';
 
 class ContratosScreen extends StatefulWidget {
   final Persona persona;
@@ -43,7 +44,7 @@ class _ContratosScreenState extends State<ContratosScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Contratos'), backgroundColor: Colors.brown, foregroundColor: Colors.white),
       body: contratos.isEmpty
-        ? const Center(child: Text('No hay contratos registrados.', style: TextStyle(color: Colors.grey, fontSize: 16)))
+        ? const Center(child: Text('No hay contratos registrados.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)))
         : ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: contratos.length,

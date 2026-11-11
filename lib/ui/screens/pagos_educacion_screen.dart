@@ -4,6 +4,7 @@ import '../../models/educacion/pago_educacion.dart';
 import '../../providers/usuario_provider.dart';
 import 'package:provider/provider.dart';
 import 'add_pago_educacion_screen.dart';
+import '../theme/app_theme.dart';
 
 class PagosEducacionScreen extends StatefulWidget {
   final Persona persona;
@@ -37,7 +38,7 @@ class _PagosEducacionScreenState extends State<PagosEducacionScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Mensualidades y Pagos'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
       body: pagos.isEmpty 
-          ? const Center(child: Text('No hay pagos vinculados', style: TextStyle(color: Colors.grey, fontSize: 16))) 
+          ? const Center(child: Text('No hay pagos vinculados', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16))) 
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: pagos.length,
@@ -49,7 +50,7 @@ class _PagosEducacionScreenState extends State<PagosEducacionScreen> {
                     leading: const Icon(Icons.receipt_long, color: Colors.teal, size: 30),
                     title: Text(p.concepto, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text('Cobro: ${p.periodicidad}'),
-                    trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.grey), onPressed: () => _borrar(p)),
+                    trailing: IconButton(icon: const Icon(Icons.delete, color: AppTheme.textSecondary), onPressed: () => _borrar(p)),
                   ),
                 );
               }

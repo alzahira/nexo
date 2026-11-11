@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/salud/aviso_salud.dart';
+import '../theme/app_theme.dart';
 
 class AddAvisoScreen extends StatefulWidget {
   final AvisoSalud? avisoParaEditar;
@@ -52,7 +53,7 @@ class _AddAvisoScreenState extends State<AddAvisoScreen> {
             ),
             const SizedBox(height: 20),
             ListTile(
-              tileColor: Colors.grey.shade100,
+              tileColor: AppTheme.softSand,
               title: const Text('Fecha Límite'),
               subtitle: Text(DateFormat('dd/MM/yyyy').format(_fecha)),
               trailing: const Icon(Icons.calendar_today),

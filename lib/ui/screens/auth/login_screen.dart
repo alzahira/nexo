@@ -128,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 decoration: const InputDecoration(
                                   labelText: 'Email',
                                   labelStyle: TextStyle(color: AppTheme.textSecondary),
-                                  prefixIcon: Icon(Icons.email_outlined, color: AppTheme.accentLight),
+                                  prefixIcon: Icon(Icons.email_outlined, color: AppTheme.accent),
                                 ),
                                 validator: (v) => v == null || !v.contains('@') ? 'Email no válido' : null,
                               ),
@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 decoration: InputDecoration(
                                   labelText: 'Contraseña',
                                   labelStyle: const TextStyle(color: AppTheme.textSecondary),
-                                  prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.accentLight),
+                                  prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.accent),
                                   suffixIcon: IconButton(
                                     icon: Icon(_verContrasena ? Icons.visibility_off : Icons.visibility, color: AppTheme.textSecondary),
                                     onPressed: () => setState(() => _verContrasena = !_verContrasena),
@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               // Botón email
                               Container(
                                 decoration: BoxDecoration(
-                                  gradient: AppTheme.accentGradient,
+                                  gradient: AppTheme.primaryGradient,
                                   borderRadius: BorderRadius.circular(14),
                                   boxShadow: AppTheme.glowShadow,
                                 ),
@@ -180,10 +180,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               ]),
                               const SizedBox(height: 16),
 
-                              // Botón Google (solo donde existe el plugin)
+                              // Botón Google (móvil/web nativo y Windows por navegador)
                               if (kIsWeb ||
                                   defaultTargetPlatform == TargetPlatform.android ||
-                                  defaultTargetPlatform == TargetPlatform.iOS) ...[
+                                  defaultTargetPlatform == TargetPlatform.iOS ||
+                                  defaultTargetPlatform == TargetPlatform.windows) ...[
                                 OutlinedButton.icon(
                                   onPressed: auth.isLoading ? null : _loginGoogle,
                                   icon: const Icon(Icons.g_mobiledata, size: 28, color: Color(0xFF4285F4)),
@@ -195,6 +196,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     side: const BorderSide(color: AppTheme.borderColor),
                                   ),
                                 ),
+                                if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows)
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      'Se abrirá tu navegador para elegir la cuenta de Google.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                                    ),
+                                  ),
                                 const SizedBox(height: 18),
                               ],
 
@@ -202,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 onPressed: () => setState(() => _modoRegistro = !_modoRegistro),
                                 child: Text(
                                   _modoRegistro ? '¿Ya tienes cuenta? Inicia sesión' : '¿Sin cuenta? Regístrate gratis',
-                                  style: const TextStyle(color: AppTheme.accentLight, fontWeight: FontWeight.w600),
+                                  style: const TextStyle(color: AppTheme.accentGlow, fontWeight: FontWeight.w700),
                                 ),
                               ),
                               const Divider(color: AppTheme.borderColor),

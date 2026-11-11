@@ -5,12 +5,13 @@ import 'package:app_home/ui/screens/edit_tallas_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
 import '../widgets/app_icon.dart';
+import '../widgets/foto_perfil_helper.dart';
+import '../theme/app_theme.dart';
+import 'dart:convert';
 import 'dart:io';
 import '../../models/usuarios/persona.dart';
 import '../../providers/usuario_provider.dart';
-import '../../services/storage_service.dart';
 import 'package:intl/intl.dart';
 
 class PersonaDetailScreen extends StatelessWidget {
@@ -30,11 +31,19 @@ class PersonaDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // 1. CABECERA CON FOTO
-            _cabeceraPerfil(context),
+      body: Consumer<UsuarioProvider>(
+        builder: (context, prov, _) {
+          // Si la foto se acaba de guardar, el provider trae una copia nueva
+          // de la persona y la pantalla se refresca sin salir del perfil.
+          final persona = prov.familia.firstWhere(
+            (p) => p.dni == this.persona.dni,
+            orElse: () => this.persona,
+          );
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                // 1. CABECERA CON FOTO
+                _cabeceraPerfil(context, persona),
 
             // 2. DATOS PERSONALES (DNI, Nacimiento, Sangre)
             _seccionTitulo('Datos Personales'),
@@ -43,6 +52,12 @@ class PersonaDetailScreen extends StatelessWidget {
               FontAwesomeIcons.cakeCandles,
               'Fecha de Nacimiento',
               DateFormat('dd/MM/yyyy').format(persona.fechaNacimiento),
+              onTap: () => _editarFechaNacimiento(context, persona),
+              trailing: const Icon(
+                Icons.edit_calendar_rounded,
+                size: 18,
+                color: AppTheme.textSecondary,
+              ),
             ),
             _infoTile(
               FontAwesomeIcons.droplet,
@@ -76,7 +91,7 @@ class PersonaDetailScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   'No hay documentos registrados',
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: AppTheme.textSecondary),
                 ),
               )
             else
@@ -136,22 +151,25 @@ class PersonaDetailScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   'Ficha de tallas no configurada',
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: AppTheme.textSecondary),
                 ),
               ),
-          ],
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _cabeceraPerfil(BuildContext context) {
+  Widget _cabeceraPerfil(BuildContext context, Persona persona) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 30),
       decoration: BoxDecoration(
-        color: const Color(0xFF252838), // Fondo más oscuro para el perfil
+        gradient: AppTheme.mintGradient,
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
+        border: const Border(bottom: BorderSide(color: AppTheme.borderColor)),
       ),
       child: Column(
         children: [
@@ -159,21 +177,25 @@ class PersonaDetailScreen extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 65,
-                backgroundColor: Colors.indigo.shade100,
+                backgroundColor: AppTheme.accent.withValues(alpha: 0.16),
                 backgroundImage: _getFoto(persona.fotoUrl),
                 child: persona.fotoUrl == null
-                    ? const Icon(Icons.person, size: 65, color: Colors.indigo)
+                    ? const Icon(Icons.person, size: 65, color: AppTheme.accentGlow)
                     : null,
               ),
               Positioned(
                 bottom: 0,
                 right: 0,
                 child: GestureDetector(
-                  onTap: () => _cambiarFoto(context),
+                  onTap: () => FotoPerfilHelper.cambiar(context, persona),
                   child: Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(color: Colors.indigo, shape: BoxShape.circle),
-                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                    decoration: BoxDecoration(
+                      color: AppTheme.accent,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppTheme.bgCard, width: 2),
+                    ),
+                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
                   ),
                 ),
               ),
@@ -181,44 +203,54 @@ class PersonaDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           Text(
-            '${persona.nombre} ${persona.apellidos}',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            '${persona.nombre} ${persona.apellidos}'.trim(),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'DNI ${persona.dni}',
+            style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary, fontWeight: FontWeight.w600),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _cambiarFoto(BuildContext context) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
-    
-    if (pickedFile != null && context.mounted) {
-      // Mostrar indicador de carga (puedes usar un ScaffoldMessenger o similar)
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Subiendo foto...'), duration: Duration(seconds: 2))
-      );
-
-      final storage = StorageService();
-      final userId = context.read<UsuarioProvider>().userId;
-      
-      if (userId != null) {
-        final url = await storage.subirFotoPerfil(userId, persona.dni, File(pickedFile.path));
-        if (url != null && context.mounted) {
-          persona.fotoUrl = url;
-          context.read<UsuarioProvider>().notify(personaParaGuardar: persona);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Foto actualizada correctamente'))
-          );
-        }
-      }
-    }
-  }
-
   ImageProvider? _getFoto(String? url) {
     if (url == null || url.isEmpty) return null;
+    if (url.startsWith('data:image')) {
+      try {
+        return MemoryImage(base64Decode(url.substring(url.indexOf(',') + 1)));
+      } catch (_) {
+        return null;
+      }
+    }
     if (url.startsWith('http')) return NetworkImage(url);
     return FileImage(File(url));
+  }
+
+  Future<void> _editarFechaNacimiento(
+    BuildContext context,
+    Persona persona,
+  ) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: persona.fechaNacimiento,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked == null || !context.mounted) return;
+
+    persona.fechaNacimiento = picked;
+    await context.read<UsuarioProvider>().notify(
+      personaParaGuardar: persona,
+    );
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Fecha de nacimiento actualizada')),
+      );
+    }
   }
 
   Widget _seccionTitulo(String titulo) {
@@ -229,9 +261,9 @@ class PersonaDetailScreen extends StatelessWidget {
         child: Text(
           titulo,
           style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.blueGrey,
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+            color: AppTheme.textPrimary,
           ),
         ),
       ),
@@ -242,20 +274,24 @@ class PersonaDetailScreen extends StatelessWidget {
     Object icon,
     String label,
     String value, {
-    Color color = Colors.blue,
+    Color color = AppTheme.accent,
+    VoidCallback? onTap,
+    Widget? trailing,
   }) {
     return ListTile(
+      onTap: onTap,
+      trailing: trailing,
       leading: AppIcon(icon, color: color, size: 20),
       title: Text(
         label,
-        style: const TextStyle(fontSize: 12, color: Colors.grey),
+        style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary, fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
         value,
         style: const TextStyle(
           fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.black,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.textPrimary,
         ),
       ),
     );
@@ -265,10 +301,10 @@ class PersonaDetailScreen extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FaIcon(icon, color: Colors.blueGrey, size: 24),
+        FaIcon(icon, color: AppTheme.accentGlow, size: 24),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-        Text(valor, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.w600)),
+        Text(valor, style: const TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
       ],
     );
   }

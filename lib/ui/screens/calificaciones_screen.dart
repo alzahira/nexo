@@ -5,6 +5,7 @@ import '../../models/educacion/calificacion_materia.dart';
 import '../../models/educacion/curso_academico.dart';
 import '../../providers/usuario_provider.dart';
 import 'add_calificacion_screen.dart';
+import '../theme/app_theme.dart';
 
 class CalificacionesScreen extends StatefulWidget {
   final CursoAcademico curso;
@@ -51,7 +52,7 @@ class _CalificacionesScreenState extends State<CalificacionesScreen> {
           ),
           Expanded(
             child: notas.isEmpty 
-              ? const Center(child: Text('Añade asignaturas y notas (+)', style: TextStyle(color: Colors.grey, fontSize: 16))) 
+              ? const Center(child: Text('Añade asignaturas y notas (+)', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16))) 
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: notas.length, 

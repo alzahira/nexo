@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/usuario_provider.dart';
 import '../../models/gestion/suministro.dart';
 import 'add_suministro_screen.dart';
+import '../theme/app_theme.dart';
 
 class SuministrosScreen extends StatefulWidget {
   const SuministrosScreen({super.key});
@@ -26,7 +27,7 @@ class _SuministrosScreenState extends State<SuministrosScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Servicios y Suministros'), backgroundColor: Colors.blue, foregroundColor: Colors.white),
       body: suministros.isEmpty
-        ? const Center(child: Text('Sin suministros registrados.', style: TextStyle(color: Colors.grey)))
+        ? const Center(child: Text('Sin suministros registrados.', style: TextStyle(color: AppTheme.textSecondary)))
         : ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: suministros.length,

@@ -6,6 +6,7 @@ import '../../providers/usuario_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'add_tarea_screen.dart';
+import '../theme/app_theme.dart';
 
 class TareasScreen extends StatefulWidget {
   final CursoAcademico curso;
@@ -57,7 +58,7 @@ class _TareasScreenState extends State<TareasScreen> {
         foregroundColor: Colors.white,
       ),
       body: tareas.isEmpty
-          ? const Center(child: Text('No hay tareas pendientes', style: TextStyle(color: Colors.grey, fontSize: 16)))
+          ? const Center(child: Text('No hay tareas pendientes', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: tareas.length,
@@ -81,7 +82,7 @@ class _TareasScreenState extends State<TareasScreen> {
                         fontWeight: FontWeight.bold, 
                         fontSize: 16,
                         decoration: t.entregado ? TextDecoration.lineThrough : null,
-                        color: t.entregado ? Colors.grey : Colors.black,
+                        color: t.entregado ? AppTheme.textSecondary : Colors.black,
                       )
                     ),
                     subtitle: Column(
@@ -90,11 +91,11 @@ class _TareasScreenState extends State<TareasScreen> {
                         const SizedBox(height: 5),
                         Row(
                           children: [
-                            Icon(Icons.calendar_today, size: 14, color: t.entregado ? Colors.grey : Colors.orange),
+                            Icon(Icons.calendar_today, size: 14, color: t.entregado ? AppTheme.textSecondary : Colors.orange),
                             const SizedBox(width: 5),
                             Text(
                               'Entrega: ${DateFormat('dd/MM/yyyy').format(t.fechaEntrega)}',
-                              style: TextStyle(color: t.entregado ? Colors.grey : Colors.deepOrange),
+                              style: TextStyle(color: t.entregado ? AppTheme.textSecondary : Colors.deepOrange),
                             ),
                           ],
                         ),
@@ -105,7 +106,7 @@ class _TareasScreenState extends State<TareasScreen> {
                       ],
                     ),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                      icon: const Icon(Icons.delete_outline, color: AppTheme.textSecondary),
                       onPressed: () => _borrarTarea(t),
                     ),
                   ),

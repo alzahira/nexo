@@ -6,6 +6,7 @@ import '../../providers/usuario_provider.dart';
 import '../../models/usuarios/persona.dart';
 import '../../models/salud/prueba_medica.dart';
 import 'add_prueba_screen.dart';
+import '../theme/app_theme.dart';
 
 class PruebasScreen extends StatefulWidget {
   final Persona persona;
@@ -30,7 +31,7 @@ class _PruebasScreenState extends State<PruebasScreen> {
           ? const Center(
               child: Text(
                 'No hay pruebas registradas',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: AppTheme.textSecondary),
               ),
             )
           : ListView.builder(
@@ -71,7 +72,7 @@ class _PruebasScreenState extends State<PruebasScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
-                    color: Colors.grey,
+                    color: AppTheme.textSecondary,
                   ),
                 ),
                 Text(p.resultado.isEmpty ? 'Sin resumen' : p.resultado),

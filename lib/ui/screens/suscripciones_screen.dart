@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../providers/usuario_provider.dart';
 import '../../models/gestion/suscripcion.dart';
 import 'add_suscripcion_screen.dart';
+import '../theme/app_theme.dart';
 
 class SuscripcionesScreen extends StatefulWidget {
   const SuscripcionesScreen({super.key});
@@ -50,13 +51,13 @@ class _SuscripcionesScreenState extends State<SuscripcionesScreen> {
                 const Text('Gasto Mensual Estimado', style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 5),
                 Text('${gastoMensual.toStringAsFixed(2)} €', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.purple)),
-                const Text('incluyendo prorrateo de anuales', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                const Text('incluyendo prorrateo de anuales', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
               ],
             ),
           ),
           Expanded(
             child: suscripciones.isEmpty
-              ? const Center(child: Text('No hay suscripciones registradas.', style: TextStyle(color: Colors.grey)))
+              ? const Center(child: Text('No hay suscripciones registradas.', style: TextStyle(color: AppTheme.textSecondary)))
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: suscripciones.length,

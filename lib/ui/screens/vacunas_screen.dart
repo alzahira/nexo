@@ -6,6 +6,7 @@ import '../../providers/usuario_provider.dart';
 import '../../models/usuarios/persona.dart';
 import '../../models/salud/vacuna.dart';
 import 'add_vacuna_screen.dart';
+import '../theme/app_theme.dart';
 
 class VacunasScreen extends StatefulWidget {
   final Persona persona;
@@ -127,6 +128,6 @@ class _VacunasScreenState extends State<VacunasScreen> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(child: Text('No hay vacunas registradas', style: TextStyle(color: Colors.grey)));
+    return const Center(child: Text('No hay vacunas registradas', style: TextStyle(color: AppTheme.textSecondary)));
   }
 }

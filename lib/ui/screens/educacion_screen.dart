@@ -6,6 +6,7 @@ import 'cursos_screen.dart';
 import 'eventos_screen.dart';
 import 'pagos_educacion_screen.dart';
 import 'titulos_screen.dart';
+import '../theme/app_theme.dart';
 
 class EducacionScreen extends StatefulWidget {
   final Persona persona;
@@ -43,7 +44,7 @@ class _EducacionScreenState extends State<EducacionScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FaIcon(FontAwesomeIcons.school, size: 80, color: Colors.grey.shade400),
+                FaIcon(FontAwesomeIcons.school, size: 80, color: AppTheme.accentLight),
                 const SizedBox(height: 20),
                 Text(
                   '${widget.persona.nombre} no tiene un perfil académico configurado.',

@@ -5,6 +5,7 @@ import '../../models/usuarios/persona.dart';
 import '../../models/educacion/titulo.dart';
 import '../../providers/usuario_provider.dart';
 import 'add_titulo_screen.dart';
+import '../theme/app_theme.dart';
 
 class TitulosScreen extends StatefulWidget {
   final Persona persona;
@@ -30,7 +31,7 @@ class _TitulosScreenState extends State<TitulosScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Diplomas y Títulos'), backgroundColor: Colors.blueGrey, foregroundColor: Colors.white),
       body: tits.isEmpty 
-          ? const Center(child: Text('Ningún título acreditado', style: TextStyle(color: Colors.grey, fontSize: 16))) 
+          ? const Center(child: Text('Ningún título acreditado', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16))) 
           : ListView.builder(
               padding: const EdgeInsets.all(16), 
               itemCount: tits.length, 
@@ -51,7 +52,7 @@ class _TitulosScreenState extends State<TitulosScreen> {
                       ],
                     ),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.grey), 
+                      icon: const Icon(Icons.delete, color: AppTheme.textSecondary), 
                       onPressed: () => setState(() { 
                         tits.remove(t); 
                         context.read<UsuarioProvider>().notify(personaParaGuardar: widget.persona); 

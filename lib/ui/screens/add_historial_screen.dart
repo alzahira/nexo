@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../models/salud/visita_historial.dart';
+import '../theme/app_theme.dart';
 
 class AddHistorialScreen extends StatefulWidget {
   final VisitaHistorial? itemParaEditar;
@@ -51,7 +52,7 @@ class _AddHistorialScreenState extends State<AddHistorialScreen> {
             _buildInput(_centroCtrl, 'Centro de Salud', Icons.local_hospital),
             
             ListTile(
-              tileColor: Colors.grey.shade100,
+              tileColor: AppTheme.softSand,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               title: const Text('Fecha de la Visita'),
               subtitle: Text(DateFormat('dd/MM/yyyy').format(_fecha)),
@@ -109,7 +110,7 @@ class _AddHistorialScreenState extends State<AddHistorialScreen> {
       child: Container(
         height: 150,
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: AppTheme.softSand,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(color: Colors.teal.shade200)
         ),

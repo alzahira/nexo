@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app_home/providers/auth_provider.dart';
+import 'package:app_home/providers/calendar_sync_provider.dart';
 import 'package:app_home/providers/usuario_provider.dart';
 import 'package:app_home/ui/screens/main_screen.dart';
 import 'package:app_home/ui/screens/auth/login_screen.dart';
@@ -52,6 +53,9 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+          create: (context) => CalendarSyncProvider(context.read<AuthProvider>()),
+        ),
         ChangeNotifierProxyProvider<AuthProvider, UsuarioProvider>(
           create: (_) => UsuarioProvider(),
           update: (_, auth, usuario) {
@@ -74,7 +78,7 @@ class OtraInstanciaApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'AppHome',
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
       home: Scaffold(
         backgroundColor: AppTheme.bgDark,
         body: Center(
@@ -85,12 +89,12 @@ class OtraInstanciaApp extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'AppHome ya está abierto',
-                style: AppTheme.dark.textTheme.headlineSmall,
+                style: AppTheme.light.textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
               Text(
                 'Cierra la otra ventana antes de abrir una nueva copia.',
-                style: AppTheme.dark.textTheme.bodyMedium,
+                style: AppTheme.light.textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -113,7 +117,7 @@ class AppHome extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'AppHome',
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -153,7 +157,7 @@ class AuthWrapper extends StatelessWidget {
               const SizedBox(height: 24),
               const CircularProgressIndicator(color: AppTheme.accent),
               const SizedBox(height: 16),
-              Text('Cargando AppHome...', style: AppTheme.dark.textTheme.bodyMedium),
+              Text('Cargando AppHome...', style: AppTheme.light.textTheme.bodyMedium),
             ],
           ),
         ),

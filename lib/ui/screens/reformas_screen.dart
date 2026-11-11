@@ -6,6 +6,7 @@ import '../../models/hogar/reforma.dart';
 import '../../models/hogar/propiedad.dart';
 import '../../providers/usuario_provider.dart';
 import 'add_reforma_screen.dart';
+import '../theme/app_theme.dart';
 
 class ReformasScreen extends StatefulWidget {
   final Propiedad propiedad;
@@ -57,7 +58,7 @@ class _ReformasScreenState extends State<ReformasScreen> {
           ),
           Expanded(
             child: obras.isEmpty
-              ? const Center(child: Text('Sin reformas registradas.', style: TextStyle(color: Colors.grey, fontSize: 16)))
+              ? const Center(child: Text('Sin reformas registradas.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)))
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: obras.length,

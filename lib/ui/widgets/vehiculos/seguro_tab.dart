@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/vehiculos/vehiculo.dart';
 import '../../../models/vehiculos/poliza_seguro.dart';
+import '../../theme/app_theme.dart';
 
 class SeguroTab extends StatefulWidget {
   final Vehiculo vehiculo;
@@ -85,7 +86,7 @@ class _SeguroTabState extends State<SeguroTab> {
                       const Divider(height: 30),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.numbers, color: Colors.grey),
+                        leading: const Icon(Icons.numbers, color: AppTheme.textSecondary),
                         title: const Text('Número de Póliza'),
                         subtitle: Text(
                           seguro.numeroPoliza,
@@ -94,7 +95,7 @@ class _SeguroTabState extends State<SeguroTab> {
                       ),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.security, color: Colors.grey),
+                        leading: const Icon(Icons.security, color: AppTheme.textSecondary),
                         title: const Text('Cobertura'),
                         subtitle: Text(
                           seguro.tipoCobertura,

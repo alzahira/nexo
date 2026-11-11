@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../models/salud/prueba_medica.dart';
+import '../theme/app_theme.dart';
 
 class AddPruebaScreen extends StatefulWidget {
   final PruebaMedica? pruebaParaEditar;
@@ -47,7 +48,7 @@ class _AddPruebaScreenState extends State<AddPruebaScreen> {
             _buildInput(_centroCtrl, 'Centro / Laboratorio', Icons.business),
             
             ListTile(
-              tileColor: Colors.grey.shade100,
+              tileColor: AppTheme.softSand,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               title: const Text('Fecha de la Prueba'),
               subtitle: Text(DateFormat('dd/MM/yyyy').format(_fecha)),
@@ -108,7 +109,7 @@ class _AddPruebaScreenState extends State<AddPruebaScreen> {
       child: Container(
         height: 180,
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: AppTheme.softSand,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(color: Colors.indigo.shade200)
         ),

@@ -5,6 +5,7 @@ import '../../providers/usuario_provider.dart';
 import '../../models/usuarios/persona.dart';
 import '../../models/salud/cita_medica.dart';
 import 'add_cita_screen.dart';
+import '../theme/app_theme.dart';
 
 class CitasMedicasScreen extends StatefulWidget {
   final Persona persona;
@@ -163,11 +164,11 @@ class _CitasMedicasScreenState extends State<CitasMedicasScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.event_busy, size: 80, color: Colors.grey.shade300),
+          Icon(Icons.event_busy, size: 80, color: AppTheme.accentLight),
           const SizedBox(height: 20),
           const Text(
             'No hay citas para esta persona',
-            style: TextStyle(color: Colors.grey, fontSize: 18),
+            style: TextStyle(color: AppTheme.textSecondary, fontSize: 18),
           ),
         ],
       ),

@@ -325,8 +325,8 @@ class UsuarioProvider extends ChangeNotifier {
       if (p.rolEstudiante != null) {
         for (var e in p.rolEstudiante!.eventos) {
           lista.add(AppEvent(
-            titulo: 'Cole: ${p.nombre}',
-            descripcion: e.tipo,
+            titulo: e.tipo.trim().isEmpty ? 'Evento escolar' : e.tipo.trim(),
+            descripcion: 'Colegio de ${p.nombre}',
             fecha: e.fecha,
             color: Colors.orange,
             icono: Icons.school,
@@ -353,7 +353,7 @@ class UsuarioProvider extends ChangeNotifier {
     // 4. Suscripciones (Próximo pago) 
     for (var s in _suscripciones) {
       lista.add(AppEvent(
-        titulo: 'Pago: ${s.nombre}',
+        titulo: 'Pago: ${s.nombre.trim()}',
         descripcion: '${s.precio.toStringAsFixed(2)} €',
         fecha: s.fechaProximoCobro,
         color: Colors.purple,

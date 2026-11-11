@@ -5,6 +5,7 @@ import '../../models/usuarios/persona.dart';
 import '../../models/trabajo/nomina.dart';
 import '../../providers/usuario_provider.dart';
 import 'add_nomina_screen.dart';
+import '../theme/app_theme.dart';
 
 class NominasScreen extends StatefulWidget {
   final Persona persona;
@@ -42,7 +43,7 @@ class _NominasScreenState extends State<NominasScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Nóminas'), backgroundColor: Colors.blue, foregroundColor: Colors.white),
       body: nominas.isEmpty
-        ? const Center(child: Text('No hay nóminas registradas.', style: TextStyle(color: Colors.grey, fontSize: 16)))
+        ? const Center(child: Text('No hay nóminas registradas.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)))
         : ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: nominas.length,

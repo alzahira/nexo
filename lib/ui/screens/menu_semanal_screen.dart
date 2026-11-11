@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/usuario_provider.dart';
 import 'edit_menu_dia_screen.dart';
+import '../theme/app_theme.dart';
 
 class MenuSemanalScreen extends StatefulWidget {
   const MenuSemanalScreen({super.key});
@@ -29,7 +30,7 @@ class _MenuSemanalScreenState extends State<MenuSemanalScreen> {
             child: ExpansionTile(
               leading: CircleAvatar(backgroundColor: Colors.orange.shade100, child: Text(dia.diaSemana[0], style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold))),
               title: Text(dia.diaSemana, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(tieneComida ? 'Planificado' : 'Sin planificar', style: TextStyle(color: tieneComida ? Colors.green : Colors.grey)),
+              subtitle: Text(tieneComida ? 'Planificado' : 'Sin planificar', style: TextStyle(color: tieneComida ? Colors.green : AppTheme.textSecondary)),
               trailing: IconButton(
                 icon: const Icon(Icons.edit, color: Colors.orange, size: 20),
                 onPressed: () async {
@@ -63,8 +64,8 @@ class _MenuSemanalScreenState extends State<MenuSemanalScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
-                Text(valor ?? 'No definido', style: TextStyle(fontSize: 14, fontStyle: valor == null ? FontStyle.italic : FontStyle.normal, color: valor == null ? Colors.grey : Colors.black87)),
+                Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary, fontWeight: FontWeight.bold)),
+                Text(valor ?? 'No definido', style: TextStyle(fontSize: 14, fontStyle: valor == null ? FontStyle.italic : FontStyle.normal, color: valor == null ? AppTheme.textSecondary : Colors.black87)),
               ],
             ),
           ),

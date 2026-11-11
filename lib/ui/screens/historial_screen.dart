@@ -6,6 +6,7 @@ import '../../providers/usuario_provider.dart';
 import '../../models/usuarios/persona.dart';
 import '../../models/salud/visita_historial.dart';
 import 'add_historial_screen.dart';
+import '../theme/app_theme.dart';
 
 class HistorialScreen extends StatefulWidget {
   final Persona persona;
@@ -181,7 +182,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 12,
-            color: Colors.grey,
+            color: AppTheme.textSecondary,
           ),
         ),
         Text(valor, style: TextStyle(fontSize: 15, color: color)),

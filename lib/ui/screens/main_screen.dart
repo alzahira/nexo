@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import '../../models/common/app_event.dart';
+import '../../providers/calendar_sync_provider.dart';
 import '../../providers/usuario_provider.dart';
 import '../theme/app_theme.dart';
 import 'usuarios_screen.dart';
@@ -15,8 +19,12 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
+  int _currentIndex = 0; // Inicio (calendario) al abrir la app
+  late final UsuarioProvider _usuario;
+  late final CalendarSyncProvider _calendar;
+  Timer? _debounce;
+  String _firmaEventos = '';
 
   final List<Widget> _screens = [
     const HomeScreen(),
@@ -24,6 +32,59 @@ class _MainScreenState extends State<MainScreen> {
     const HogarScreen(),
     const GestionScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _usuario = context.read<UsuarioProvider>();
+    _calendar = context.read<CalendarSyncProvider>();
+    _usuario.addListener(_alCambiarDatos);
+    _firmaEventos = _firma(_usuario.todosLosEventos);
+    _programarSync(const Duration(seconds: 1));
+  }
+
+  String _firma(List<AppEvent> eventos) {
+    final items = eventos.map((e) {
+      final d = e.fecha.toLocal();
+      return '${e.titulo.trim().toLowerCase()}|${d.year}-${d.month}-${d.day}';
+    }).toList()
+      ..sort();
+    return items.join(';');
+  }
+
+  void _alCambiarDatos() {
+    final nueva = _firma(_usuario.todosLosEventos);
+    if (nueva == _firmaEventos) return;
+    _firmaEventos = nueva;
+    _programarSync(const Duration(seconds: 2));
+  }
+
+  void _programarSync(Duration espera) {
+    _debounce?.cancel();
+    _debounce = Timer(espera, () {
+      if (!mounted) return;
+      unawaited(_calendar.sincronizar(
+        eventosLocales: _usuario.todosLosEventos,
+        silencioso: true,
+      ));
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _programarSync(const Duration(seconds: 1));
+    }
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    _usuario.removeListener(_alCambiarDatos);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +123,7 @@ class _MainScreenState extends State<MainScreen> {
           color: AppTheme.bgSurface,
           border: const Border(top: BorderSide(color: AppTheme.borderColor, width: 1)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 20, offset: const Offset(0, -5)),
+            BoxShadow(color: const Color(0xFF2E3A34).withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, -5)),
           ],
         ),
         child: BottomNavigationBar(
@@ -77,7 +138,7 @@ class _MainScreenState extends State<MainScreen> {
           unselectedLabelStyle: const TextStyle(fontSize: 11),
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.calendar_month_rounded), label: 'Inicio'),
-            BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.users, size: 20), label: 'Familia'),
+            BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.user, size: 20), label: 'Mi perfil'),
             BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.houseChimney, size: 20), label: 'Hogar'),
             BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.basketShopping, size: 20), label: 'Gestión'),
           ],

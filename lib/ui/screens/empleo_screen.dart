@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import '../theme/app_theme.dart';
 import '../../models/usuarios/persona.dart';
 import 'edit_datos_empleo_screen.dart';
 import '../../models/trabajo/nomina.dart';
@@ -22,8 +23,12 @@ class _EmpleoScreenState extends State<EmpleoScreen> {
 
   Widget _buildCard(String titulo, FaIconData icono, Color color, VoidCallback onTap) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 0,
+      color: AppTheme.bgCard,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppTheme.borderColor),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(15),
@@ -32,7 +37,7 @@ class _EmpleoScreenState extends State<EmpleoScreen> {
           children: [
             FaIcon(icono, color: color, size: 40),
             const SizedBox(height: 15),
-            Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(titulo, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
           ],
         ),
       ),
@@ -69,16 +74,17 @@ class _EmpleoScreenState extends State<EmpleoScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, 5))]
+        border: Border.all(color: AppTheme.borderColor),
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Ingresos Últimos 12 Meses', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.blueGrey)),
+          const Text('Ingresos Últimos 12 Meses', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppTheme.textPrimary)),
           const SizedBox(height: 5),
-          Text('${totalAcumulado.toStringAsFixed(2)} €', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.blue)),
+          Text('${totalAcumulado.toStringAsFixed(2)} €', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24, color: AppTheme.accentGlow)),
           const SizedBox(height: 20),
           SizedBox(
             height: 100,
@@ -98,14 +104,14 @@ class _EmpleoScreenState extends State<EmpleoScreen> {
                             child: Container(
                               margin: const EdgeInsets.symmetric(horizontal: 2),
                               decoration: BoxDecoration(
-                                color: Colors.blue,
+                                color: AppTheme.accent,
                                 borderRadius: BorderRadius.circular(4)
                               ),
                             ),
                           ),
                         ),
                       const SizedBox(height: 5),
-                      Text(data['label'], style: const TextStyle(fontSize: 9, color: Colors.grey)),
+                      Text(data['label'], style: const TextStyle(fontSize: 9, color: AppTheme.textSecondary)),
                     ],
                   ),
                 );
@@ -123,8 +129,6 @@ class _EmpleoScreenState extends State<EmpleoScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Empleo - ${widget.persona.nombre}'),
-        backgroundColor: Colors.blueGrey,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(icon: const Icon(Icons.edit), onPressed: _editDatos, tooltip: 'Editar Perfil'),
         ],
@@ -135,22 +139,27 @@ class _EmpleoScreenState extends State<EmpleoScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
-              color: Colors.blueGrey,
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30))
+              gradient: AppTheme.mintGradient,
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+              border: Border(bottom: BorderSide(color: AppTheme.borderColor)),
             ),
             child: Row(
               children: [
-                const CircleAvatar(radius: 35, backgroundColor: Colors.white, child: Icon(Icons.business_center, size: 40, color: Colors.blueGrey)),
+                const CircleAvatar(
+                  radius: 35,
+                  backgroundColor: Color(0x2A6F9480),
+                  child: Icon(Icons.business_center, size: 36, color: AppTheme.accentGlow),
+                ),
                 const SizedBox(width: 20),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(emp?.empresaActual.isNotEmpty == true ? emp!.empresaActual : 'Sin Empresa', style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                      Text(emp?.empresaActual.isNotEmpty == true ? emp!.empresaActual : 'Sin Empresa', style: const TextStyle(color: AppTheme.textPrimary, fontSize: 22, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 5),
-                      Text(emp?.puesto.isNotEmpty == true ? emp!.puesto : 'Puesto no definido', style: const TextStyle(color: Colors.white70, fontSize: 16)),
+                      Text(emp?.puesto.isNotEmpty == true ? emp!.puesto : 'Puesto no definido', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
                       if (emp != null)
-                        Text('Ingreso: ${DateFormat('dd/MM/yyyy').format(emp.fechaIngreso)}', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                        Text('Ingreso: ${DateFormat('dd/MM/yyyy').format(emp.fechaIngreso)}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
                     ],
                   ),
                 ),

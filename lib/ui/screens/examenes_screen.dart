@@ -6,6 +6,7 @@ import '../../providers/usuario_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'add_examen_screen.dart';
+import '../theme/app_theme.dart';
 
 class ExamenesScreen extends StatefulWidget {
   final CursoAcademico curso;
@@ -50,7 +51,7 @@ class _ExamenesScreenState extends State<ExamenesScreen> {
         foregroundColor: Colors.white,
       ),
       body: examenes.isEmpty
-          ? const Center(child: Text('No hay exámenes programados', style: TextStyle(color: Colors.grey, fontSize: 16)))
+          ? const Center(child: Text('No hay exámenes programados', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: examenes.length,
@@ -82,7 +83,7 @@ class _ExamenesScreenState extends State<ExamenesScreen> {
                         const SizedBox(height: 5),
                         Row(
                           children: [
-                            const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                            const Icon(Icons.access_time, size: 14, color: AppTheme.textSecondary),
                             const SizedBox(width: 5),
                             Text(DateFormat('dd/MM/yyyy HH:mm').format(ex.fechaHora)),
                           ],
@@ -94,7 +95,7 @@ class _ExamenesScreenState extends State<ExamenesScreen> {
                       ],
                     ),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                      icon: const Icon(Icons.delete_outline, color: AppTheme.textSecondary),
                       onPressed: () => _borrarExamen(ex),
                     ),
                   ),

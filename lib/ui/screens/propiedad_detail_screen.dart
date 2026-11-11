@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../models/hogar/propiedad.dart';
+import '../theme/app_theme.dart';
 import 'habitaciones_screen.dart';
 import 'electrodomesticos_screen.dart';
 import 'reformas_screen.dart';
@@ -18,8 +19,12 @@ class _PropiedadDetailScreenState extends State<PropiedadDetailScreen> {
 
   Widget _buildBotonModulo(String titulo, FaIconData icono, Color color, VoidCallback onTap) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 0,
+      color: AppTheme.bgCard,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppTheme.borderColor),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(15),
@@ -28,7 +33,7 @@ class _PropiedadDetailScreenState extends State<PropiedadDetailScreen> {
           children: [
             FaIcon(icono, color: color, size: 40),
             const SizedBox(height: 15),
-            Text(titulo, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            Text(titulo, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppTheme.textPrimary)),
           ],
         ),
       ),
@@ -41,30 +46,33 @@ class _PropiedadDetailScreenState extends State<PropiedadDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(p.alias),
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.teal.shade700,
-              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30))
+            decoration: const BoxDecoration(
+              gradient: AppTheme.mintGradient,
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+              border: Border(bottom: BorderSide(color: AppTheme.borderColor)),
             ),
             child: Row(
               children: [
-                const CircleAvatar(radius: 35, backgroundColor: Colors.white, child: Icon(Icons.house, size: 40, color: Colors.teal)),
+                const CircleAvatar(
+                  radius: 35,
+                  backgroundColor: Color(0x2A6F9480),
+                  child: Icon(Icons.house, size: 38, color: AppTheme.accentGlow),
+                ),
                 const SizedBox(width: 20),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(p.direccion, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(p.direccion, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 5),
-                      Text('IBI Anual: ${p.ibi} €', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                      Text('IBI Anual: ${p.ibi} €', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
                       if (p.valorCompra != null)
-                        Text('Valor de Compra: ${p.valorCompra} €', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                        Text('Valor de Compra: ${p.valorCompra} €', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
                     ],
                   ),
                 ),

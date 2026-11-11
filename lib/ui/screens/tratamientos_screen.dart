@@ -6,6 +6,7 @@ import '../../providers/usuario_provider.dart';
 import '../../models/usuarios/persona.dart';
 import '../../models/salud/tratamiento.dart'; // Asegúrate de que la ruta sea correcta
 import 'add_tratamiento_screen.dart';
+import '../theme/app_theme.dart';
 
 class TratamientosScreen extends StatefulWidget {
   final Persona persona;
@@ -162,11 +163,11 @@ class _TratamientosScreenState extends State<TratamientosScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.medication_outlined, size: 70, color: Colors.grey.shade300),
+          Icon(Icons.medication_outlined, size: 70, color: AppTheme.accentLight),
           const SizedBox(height: 15),
           const Text(
             'No hay tratamientos registrados', 
-            style: TextStyle(color: Colors.grey, fontSize: 16)
+            style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)
           ),
         ],
       ),

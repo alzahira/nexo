@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../services/google_windows_auth.dart';
+
 class AuthProvider extends ChangeNotifier {
   FirebaseAuth? _auth;
 
@@ -146,6 +148,12 @@ class AuthProvider extends ChangeNotifier {
     try {
       if (kIsWeb) return await _loginConGoogleWeb();
 
+      // Windows no tiene implementación de google_sign_in: se usa el navegador
+      // del sistema con una página alojada en Firebase Hosting.
+      if (defaultTargetPlatform == TargetPlatform.windows) {
+        return await _loginConGoogleWindows();
+      }
+
       if (!_googleSignIn.supportsAuthenticate()) {
         _isLoading = false;
         _errorMessage =
@@ -222,6 +230,32 @@ class AuthProvider extends ChangeNotifier {
     return true;
   }
 
+  /// Google en Windows: navegador del sistema + servidor local para el token.
+  Future<bool> _loginConGoogleWindows() async {
+    try {
+      final tokens = await GoogleWindowsAuth.signIn(email: _user?.email);
+      final accessToken = tokens['accessToken'] ?? '';
+      final credential = GoogleAuthProvider.credential(
+        idToken: tokens['idToken'],
+        accessToken: accessToken.isEmpty ? null : accessToken,
+      );
+      final userCredential = await _auth!.signInWithCredential(credential);
+      _googleAccessToken = accessToken.isEmpty ? null : accessToken;
+      _user = userCredential.user;
+      _guestUserId = null;
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('AuthProvider: error en Google Windows: $e');
+      _isLoading = false;
+      _errorMessage =
+          'No se pudo completar el acceso con Google. Inténtalo de nuevo.';
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Pide (sin interacción si ya se concedió) el token de Google Calendar.
   Future<String?> _tokenCalendarioDe(GoogleSignInAccount account) async {
     try {
@@ -239,7 +273,16 @@ class AuthProvider extends ChangeNotifier {
   /// Token de Calendar para el servicio de sincronización.
   Future<String?> obtenerTokenCalendario() async {
     if (_googleAccessToken != null) return _googleAccessToken;
-    if (kIsWeb || !_googleSignIn.supportsAuthenticate()) return null;
+    if (kIsWeb) return null;
+
+    // google_sign_in no implementa Windows/Linux/macOS: allí el token solo
+    // existe tras el puente de Google y no se puede renovar sin volver a
+    // conectar la cuenta. Evitamos llamar a supportsAuthenticate() en esas
+    // plataformas porque lanza UnimplementedError.
+    final esMovil = defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    if (!esMovil || !_googleSignIn.supportsAuthenticate()) return null;
+
     try {
       await _inicializarGoogle();
       final account = await _googleSignIn.attemptLightweightAuthentication();
