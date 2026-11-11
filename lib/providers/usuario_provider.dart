@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,6 +37,16 @@ class UsuarioProvider extends ChangeNotifier {
   // Caché de eventos para el calendario
   List<AppEvent>? _cacheEventos;
   final bool _isLoading = false;
+
+  // Listeners de Firestore: hay que cancelarlos al cerrar sesión o cambiar de familia
+  final List<StreamSubscription<dynamic>> _listeners = [];
+
+  void _cancelarListeners() {
+    for (final sub in _listeners) {
+      sub.cancel();
+    }
+    _listeners.clear();
+  }
 
   UsuarioProvider() {
     _resetMenu();
@@ -86,6 +98,7 @@ class UsuarioProvider extends ChangeNotifier {
   }
 
   void _limpiarDatos() {
+    _cancelarListeners();
     _familia = [];
     _listaCompra.clear();
     _suscripciones.clear();
@@ -98,29 +111,30 @@ class UsuarioProvider extends ChangeNotifier {
   // --- CARGA DESDE FIRESTORE (REACTIVA) ---
   void _inicializarFirestore() {
     if (_userId == null || _familyId == null || db == null) return;
-    
+
+    _cancelarListeners();
     _migrarDatosSiEsNecesario();
 
     debugPrint("FIRESTORE: Iniciando sincronización reactiva para familia $_familyId");
 
     // 1. Familia (Subcolección)
-    db!.collection('familias').doc(_familyId).collection('miembros').snapshots().listen((snap) {
+    _listeners.add(db!.collection('familias').doc(_familyId).collection('miembros').snapshots().listen((snap) {
       debugPrint("FIRESTORE: Update Familia -> ${snap.docs.length} miembros");
       _familia = snap.docs.map((doc) => Persona.fromMap(doc.data())).toList();
       _cacheEventos = null;
       notifyListeners();
-    }, onError: (e) => debugPrint("Error en stream familia: $e"));
+    }, onError: (e) => debugPrint("Error en stream familia: $e")));
 
     // 2. Propiedades (Subcolección)
-    db!.collection('familias').doc(_familyId).collection('propiedades').snapshots().listen((snap) {
+    _listeners.add(db!.collection('familias').doc(_familyId).collection('propiedades').snapshots().listen((snap) {
       debugPrint("FIRESTORE: Update Propiedades -> ${snap.docs.length} docs");
       _propiedades.clear();
       _propiedades.addAll(snap.docs.map((doc) => Propiedad.fromMap(doc.data())));
       notifyListeners();
-    }, onError: (e) => debugPrint("Error en stream propiedades: $e"));
+    }, onError: (e) => debugPrint("Error en stream propiedades: $e")));
 
     // 3. Gestión (Documento único de configuración)
-    db!.collection('familias').doc(_familyId).collection('gestion').doc('datos').snapshots().listen((docSnap) {
+    _listeners.add(db!.collection('familias').doc(_familyId).collection('gestion').doc('datos').snapshots().listen((docSnap) {
       if (docSnap.exists) {
         final data = docSnap.data()!;
         debugPrint("FIRESTORE: Update Gestión (listaCompra, suministros, etc.)");
@@ -142,7 +156,7 @@ class UsuarioProvider extends ChangeNotifier {
         }
         notifyListeners();
       }
-    }, onError: (e) => debugPrint("Error en stream gestión: $e"));
+    }, onError: (e) => debugPrint("Error en stream gestión: $e")));
   }
 
   // --- MÉTODOS DE PERSISTENCIA PÚBLICOS ---
@@ -350,5 +364,11 @@ class UsuarioProvider extends ChangeNotifier {
 
     _cacheEventos = lista;
     return lista;
+  }
+
+  @override
+  void dispose() {
+    _cancelarListeners();
+    super.dispose();
   }
 }
