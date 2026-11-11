@@ -75,7 +75,9 @@ class AppTheme {
       onPrimary: textPrimary,
     ),
 
-    textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
+    textTheme: ThemeData.dark().textTheme.apply(
+      fontFamily: GoogleFonts.inter().fontFamily,
+    ).copyWith(
       displayLarge: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.bold, color: textPrimary),
       titleLarge:   GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: textPrimary),
       titleMedium:  GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: textPrimary),
