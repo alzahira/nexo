@@ -28,30 +28,30 @@ class GoogleWindowsAuth {
         return;
       }
 
+      final error = params['error'];
+      final idToken = params['idToken'];
+      final fallo = (error != null && error.isNotEmpty)
+          ? error
+          : (idToken == null || idToken.isEmpty)
+              ? 'Google no devolvió un token de acceso válido.'
+              : null;
+
       request.response
         ..headers.contentType = ContentType.html
-        ..write(_resultPage);
+        ..write(_resultPage(fallo));
       await request.response.close();
 
       if (completer.isCompleted) return;
 
-      final error = params['error'];
-      if (error != null && error.isNotEmpty) {
-        completer.completeError(StateError(error));
+      if (fallo != null) {
+        completer.completeError(StateError(fallo));
         return;
       }
 
-      final idToken = params['idToken'];
-      if (idToken == null || idToken.isEmpty) {
-        completer.completeError(
-          StateError('Google no devolvió un token de acceso válido.'),
-        );
-      } else {
-        completer.complete({
-          'idToken': idToken,
-          'accessToken': params['accessToken'] ?? '',
-        });
-      }
+      completer.complete({
+        'idToken': idToken!,
+        'accessToken': params['accessToken'] ?? '',
+      });
     });
 
     final emailParam = (email == null || email.isEmpty)
@@ -69,7 +69,7 @@ class GoogleWindowsAuth {
     }
 
     try {
-      return await completer.future.timeout(const Duration(minutes: 2));
+      return await completer.future.timeout(const Duration(minutes: 5));
     } on TimeoutException {
       throw StateError(
         'Se agotó el tiempo para completar el acceso con Google. '
@@ -87,7 +87,7 @@ class GoogleWindowsAuth {
     return bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
   }
 
-  static const String _resultPage = '''
+  static String _resultPage(String? fallo) => '''
 <!doctype html>
 <html lang="es">
 <head>
@@ -97,18 +97,21 @@ class GoogleWindowsAuth {
     body { font-family: system-ui, -apple-system, Segoe UI, sans-serif;
            background: #f8f4ee; color: #2e3a34; display: flex;
            align-items: center; justify-content: center; height: 100vh;
-           margin: 0; }
+           margin: 0; padding: 24px; box-sizing: border-box; }
     main { background: #fff; padding: 32px 40px; border-radius: 24px;
-           border: 1px solid #e8e0d3; text-align: center;
+           border: 1px solid #e8e0d3; text-align: center; max-width: 460px;
            box-shadow: 0 8px 24px rgba(46,58,52,.08); }
     h1 { font-size: 20px; margin: 0 0 8px; }
-    p { margin: 0; color: #66736b; }
+    p { margin: 0; color: #66736b; line-height: 1.5; }
   </style>
 </head>
 <body>
   <main>
-    <h1>Acceso completado</h1>
-    <p>Ya puedes cerrar esta pestaña y volver a Nexo.</p>
+    <h1>${fallo == null ? 'Acceso completado' : 'No se pudo completar el acceso'}</h1>
+    <p>${fallo ?? 'Ya puedes cerrar esta pestaña y volver a Nexo.'
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')}</p>
   </main>
 </body>
 </html>

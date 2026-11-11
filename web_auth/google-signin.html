@@ -96,7 +96,8 @@
     import {
       getAuth,
       GoogleAuthProvider,
-      signInWithPopup,
+      getRedirectResult,
+      signInWithRedirect,
       signOut,
     } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
@@ -110,11 +111,20 @@
     };
 
     const params = new URLSearchParams(window.location.search);
-    const port = params.get("port");
-    const state = params.get("state");
-    const loginHint = params.get("loginHint") || "";
     const button = document.getElementById("google");
     const status = document.getElementById("status");
+
+    // La página puede recargarse al volver de Google, así que el puerto y el
+    // "state" (y el nivel de permisos) se guardan también en la pestaña.
+    const guardar = (k, v) => { try { sessionStorage.setItem(k, v); } catch (_) {} };
+    const leer = (k) => { try { return sessionStorage.getItem(k); } catch (_) { return null; } };
+
+    const port = params.get("port") || leer("nexo_port");
+    const state = params.get("state") || leer("nexo_state");
+    const loginHint = params.get("loginHint") || leer("nexo_login_hint") || "";
+    if (port) guardar("nexo_port", port);
+    if (state) guardar("nexo_state", state);
+    if (loginHint) guardar("nexo_login_hint", loginHint);
 
     if (!port || !state) {
       button.disabled = true;
@@ -138,13 +148,88 @@
       ["https://www.googleapis.com/auth/calendar"],
       [],
     ];
-    let nivel = 0;
+    let nivel = Number(leer("nexo_nivel") ?? 0);
+    if (!Number.isInteger(nivel) || nivel < 0 || nivel >= NIVELES.length) {
+      nivel = 0;
+    }
 
-    button.addEventListener("click", async () => {
+    // Vuelve a la app con el error, para que no se quede esperando.
+    function avisarApp(mensaje) {
+      if (!port || !state) return;
+      const target = new URL(`http://127.0.0.1:${port}/`);
+      target.searchParams.set("state", state);
+      target.searchParams.set("error", mensaje);
+      window.location.replace(target.toString());
+    }
+
+    function limpiarGuardado() {
+      ["nexo_port", "nexo_state", "nexo_login_hint", "nexo_nivel"].forEach((k) => {
+        try { sessionStorage.removeItem(k); } catch (_) {}
+      });
+    }
+
+    // Devuelve el token a la app de escritorio (servidor local en 127.0.0.1).
+    async function entregar(result) {
+      // Ojo: result.user.getIdToken() es un token de Firebase, no de Google.
+      // Para signInWithCredential en la app de escritorio hace falta el
+      // idToken de Google que devuelve el proveedor OAuth.
+      const oauthCredential = GoogleAuthProvider.credentialFromResult(result);
+      const idToken = oauthCredential?.idToken ?? "";
+      const accessToken = oauthCredential?.accessToken ?? "";
+      if (!idToken) {
+        throw new Error("Google no devolvió un idToken válido.");
+      }
+
+      // La sesión del navegador ya no se necesita: la app de escritorio
+      // canjea el token por su propia sesión de Firebase.
+      try { await signOut(auth); } catch (_) {}
+
+      status.textContent = "Acceso correcto. Volviendo a Nexo...";
+      const target = new URL(`http://127.0.0.1:${port}/`);
+      target.searchParams.set("state", state);
+      target.searchParams.set("idToken", idToken);
+      target.searchParams.set("accessToken", accessToken);
+      limpiarGuardado();
+      window.location.replace(target.toString());
+    }
+
+    async function manejarError(error) {
+      const code = error?.code ?? "";
+      const detalle = `${code} ${error?.message ?? ""}`.toLowerCase();
+      let message = error?.message ?? "No se pudo completar el acceso.";
+      if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
+        message = "Se cerró la ventana de Google antes de terminar.";
+      } else if (code === "auth/unauthorized-domain") {
+        message = "Este dominio no está autorizado en Firebase Authentication.";
+      } else if (code === "auth/operation-not-allowed") {
+        message = "El acceso con Google no está habilitado en Firebase.";
+      } else if (code === "auth/web-storage-unsupported") {
+        message = "El navegador bloquea el almacenamiento que necesita Google.";
+      }
+
+      // Baja un nivel de permisos cuando Google rechaza alguno.
+      if (detalle.includes("scope") && nivel < NIVELES.length - 1) {
+        nivel++;
+        guardar("nexo_nivel", String(nivel));
+        status.className = "status";
+        status.textContent =
+          NIVELES[nivel].length === 0
+            ? "Google no acepta todavía esos permisos; entrando solo con la cuenta..."
+            : "Google no acepta todavía el permiso de tareas; entrando con el calendario...";
+        await entrarConGoogle();
+        return;
+      }
+
+      status.textContent = message;
+      status.className = "status error";
+      button.disabled = false;
+      avisarApp(message);
+    }
+
+    async function entrarConGoogle() {
       button.disabled = true;
       status.className = "status";
-      status.textContent = "Abriendo la ventana de Google...";
-
+      status.textContent = "Abriendo la cuenta de Google...";
       try {
         const provider = new GoogleAuthProvider();
         for (const scope of NIVELES[nivel]) provider.addScope(scope);
@@ -155,65 +240,35 @@
             ? { login_hint: loginHint }
             : { prompt: "select_account" },
         );
-
-        const result = await signInWithPopup(auth, provider);
-        // Ojo: result.user.getIdToken() es un token de Firebase, no de Google.
-        // Para signInWithCredential en la app de escritorio hace falta el
-        // idToken de Google que devuelve el proveedor OAuth.
-        const oauthCredential = GoogleAuthProvider.credentialFromResult(result);
-        const idToken = oauthCredential?.idToken ?? "";
-        const accessToken = oauthCredential?.accessToken ?? "";
-        if (!idToken) {
-          throw new Error("Google no devolvió un idToken válido.");
-        }
-
-        // La sesión del navegador ya no se necesita: la app de escritorio
-        // canjea el token por su propia sesión de Firebase.
-        try { await signOut(auth); } catch (_) {}
-
-        status.textContent = "Acceso correcto. Volviendo a Nexo...";
-        const target = new URL(`http://127.0.0.1:${port}/`);
-        target.searchParams.set("state", state);
-        target.searchParams.set("idToken", idToken);
-        target.searchParams.set("accessToken", accessToken);
-        window.location.replace(target.toString());
+        // Redirección en la misma pestaña: no depende de ventanas emergentes
+        // ni de cookies de terceros, que los navegadores actuales bloquean.
+        await signInWithRedirect(auth, provider);
       } catch (error) {
-        const code = error?.code ?? "";
-        const detalle = `${code} ${error?.message ?? ""}`.toLowerCase();
-        let message = error?.message ?? "No se pudo completar el acceso.";
-        if (code === "auth/popup-closed-by-user") {
-          message = "Cerraste la ventana de Google antes de terminar.";
-        } else if (code === "auth/unauthorized-domain") {
-          message = "Este dominio no está autorizado en Firebase Authentication.";
-        } else if (code === "auth/operation-not-allowed") {
-          message = "El acceso con Google no está habilitado en Firebase.";
-        }
-
-        // Baja un nivel de permisos cuando Google rechaza alguno.
-        if (detalle.includes("scope") && nivel < NIVELES.length - 1) {
-          nivel++;
-          status.textContent =
-            NIVELES[nivel].length === 0
-              ? "Google no acepta todavía esos permisos; entrando solo con la cuenta..."
-              : "Google no acepta todavía el permiso de tareas; entrando con el calendario...";
-          button.disabled = false;
-          button.click();
-          return;
-        }
-
-        status.textContent = message;
-        status.className = "status error";
-        button.disabled = false;
-
-        // Avisa a la app de escritorio para que no se quede esperando 2 minutos.
-        if (port && state) {
-          const target = new URL(`http://127.0.0.1:${port}/`);
-          target.searchParams.set("state", state);
-          target.searchParams.set("error", message);
-          window.location.replace(target.toString());
-        }
+        await manejarError(error);
       }
+    }
+
+    button.addEventListener("click", async () => {
+      nivel = 0;
+      guardar("nexo_nivel", "0");
+      await entrarConGoogle();
     });
+
+    // Al volver de Google, la página se recarga y aquí llega el resultado.
+    if (port && state) {
+      status.textContent = "Comprobando el acceso con Google...";
+      getRedirectResult(auth)
+        .then(async (result) => {
+          if (!result || !result.user) {
+            status.textContent = "";
+            return;
+          }
+          await entregar(result);
+        })
+        .catch(async (error) => {
+          await manejarError(error);
+        });
+    }
   </script>
 </body>
 </html>
