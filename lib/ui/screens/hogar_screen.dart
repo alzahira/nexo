@@ -53,195 +53,104 @@ class _HogarScreenState extends State<HogarScreen> {
     return reformas + seguro + p.ibi;
   }
 
-  Widget _buildGastoPorInmueble(List<Propiedad> propiedades) {
-    final gastos = <double>[for (final p in propiedades) _gastoInmueble(p)];
-    final total = gastos.fold(0.0, (a, b) => a + b);
-    final maxVal = gastos.isEmpty
-        ? 0.0
-        : gastos.reduce((a, b) => a > b ? a : b);
-    final paleta = <Color>[
-      AppTheme.accent,
-      AppTheme.warningOrange,
-      const Color(0xFFB98A7A),
-      AppTheme.accentLight,
-      AppTheme.successGreen,
-      const Color(0xFF8C9EC4),
-    ];
+
+  Widget _desgloseGastos(Propiedad p) {
+    final reformas = p.reformas.fold(0.0, (prev, r) => prev + r.coste);
+    final seguro = p.seguro?.primaAnual ?? 0.0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(22),
+        color: Colors.white.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.borderColor),
-        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: AppTheme.softMint,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.apartment_rounded,
-                  color: AppTheme.accent,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
+              const Icon(Icons.account_balance_wallet_outlined, size: 15, color: AppTheme.accentGlow),
+              const SizedBox(width: 6),
               const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Gasto por inmueble',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textPrimary,
-                        fontSize: 15,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Reformas + seguro + IBI de cada casa',
-                      style: TextStyle(
-                        fontSize: 11.5,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Gastos de esta casa',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
               ),
-              if (total > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: AppTheme.bgSurface,
-                    borderRadius: BorderRadius.circular(99),
-                    border: Border.all(color: AppTheme.borderColor),
-                  ),
-                  child: Text(
-                    _euros(total),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.accentGlow,
-                    ),
-                  ),
+              Text(
+                _euros(_gastoInmueble(p)),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.textPrimary,
                 ),
+              ),
             ],
           ),
-          const SizedBox(height: 18),
-          if (total <= 0)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
-              decoration: BoxDecoration(
-                color: AppTheme.bgSurface,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Text(
-                'Aún no hay gastos registrados. Añade reformas, seguro o IBI '
-                'dentro de cada inmueble y aquí verás la comparación.',
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary, height: 1.4),
-              ),
-            )
-          else
-            for (var i = 0; i < propiedades.length; i++) ...[
-              if (i > 0) const SizedBox(height: 16),
-              _filaInmueble(
-                propiedad: propiedades[i],
-                gasto: gastos[i],
-                max: maxVal,
-                color: paleta[i % paleta.length],
-              ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              _miniGasto(Icons.handyman_rounded, 'Reformas', reformas, AppTheme.warningOrange),
+              _separadorGasto(),
+              _miniGasto(Icons.shield_rounded, 'Seguro', seguro, AppTheme.accent),
+              _separadorGasto(),
+              _miniGasto(Icons.receipt_long_rounded, 'IBI', p.ibi, const Color(0xFF8C9EC4)),
             ],
-          if (total > 0) ...[
-            const SizedBox(height: 16),
-            const Divider(color: AppTheme.borderColor, height: 1),
-            const SizedBox(height: 12),
-            const Text(
-              'El IBI y el seguro son importes anuales; las reformas, un gasto único.',
-              style: TextStyle(fontSize: 11, color: AppTheme.textSecondary, height: 1.4),
-            ),
-          ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _filaInmueble({
-    required Propiedad propiedad,
-    required double gasto,
-    required double max,
-    required Color color,
-  }) {
-    final proporcion = max <= 0 ? 0.0 : (gasto / max).clamp(0.0, 1.0);
-    final reformas = propiedad.reformas.fold(0.0, (prev, r) => prev + r.coste);
-    final seguro = propiedad.seguro?.primaAnual ?? 0.0;
-    final detalle = 'Reformas ${_euros(reformas)} · Seguro ${_euros(seguro)} · IBI ${_euros(propiedad.ibi)}';
+  Widget _separadorGasto() {
+    return Container(
+      width: 1,
+      height: 30,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      color: AppTheme.borderColor,
+    );
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                propiedad.alias,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
+  Widget _miniGasto(IconData icono, String etiqueta, double valor, Color color) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icono, size: 13, color: color),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  etiqueta,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              _euros(gasto),
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 7),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(99),
-          child: LinearProgressIndicator(
-            value: proporcion,
-            minHeight: 9,
-            backgroundColor: color.withValues(alpha: 0.12),
-            valueColor: AlwaysStoppedAnimation<Color>(color),
+            ],
           ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          detalle,
-          style: const TextStyle(
-            fontSize: 10.5,
-            color: AppTheme.textSecondary,
-            height: 1.3,
+          const SizedBox(height: 2),
+          Text(
+            _euros(valor),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textPrimary,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -288,7 +197,9 @@ class _HogarScreenState extends State<HogarScreen> {
               ),
               const SizedBox(height: 15),
               Text(p.direccion, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
-              const SizedBox(height: 10),
+              const SizedBox(height: 14),
+              _desgloseGastos(p),
+              const SizedBox(height: 14),
               const Divider(color: AppTheme.borderColor),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -334,7 +245,7 @@ class _HogarScreenState extends State<HogarScreen> {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 90),
                   children: [
-                    _buildGastoPorInmueble(propiedades),
+                    const SizedBox(height: 8),
                     for (final p in propiedades) _tarjetaPropiedad(p),
                   ],
                 ),
