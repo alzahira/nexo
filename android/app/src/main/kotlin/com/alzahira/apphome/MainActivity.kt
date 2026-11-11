@@ -1,4 +1,4 @@
-package com.example.app_home
+package com.alzahira.apphome
 
 import io.flutter.embedding.android.FlutterActivity
 
